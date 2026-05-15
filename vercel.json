@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/", "destination": "/frontend/pages/index.html" },
+    { "source": "/index.html", "destination": "/frontend/pages/index.html" },
+    { "source": "/catalog", "destination": "/frontend/pages/catalog.html" },
+    { "source": "/catalog.html", "destination": "/frontend/pages/catalog.html" },
+    { "source": "/about", "destination": "/frontend/pages/about.html" },
+    { "source": "/about.html", "destination": "/frontend/pages/about.html" },
+    { "source": "/contacts", "destination": "/frontend/pages/contacts.html" },
+    { "source": "/contacts.html", "destination": "/frontend/pages/contacts.html" },
+    { "source": "/faq", "destination": "/frontend/pages/faq.html" },
+    { "source": "/faq.html", "destination": "/frontend/pages/faq.html" },
+    { "source": "/vr-test", "destination": "/frontend/pages/vr-test.html" },
+    { "source": "/vr-test.html", "destination": "/frontend/pages/vr-test.html" },
+    { "source": "/static/:path*", "destination": "/frontend/static/:path*" },
+    { "source": "/assets/:path*", "destination": "/assets/:path*" }
+  ]
+}

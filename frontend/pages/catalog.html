@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Garage | Каталог</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/catalog.css?v=20260422h" />
+    <script src="/static/js/vendor/aframe.min.js"></script>
+    <script src="/static/js/vendor/aframe-extras.min.js"></script>
+    <script src="/static/js/vendor/aframe-teleport-controls.min.js"></script>
+    <style>
+      .a-enter-vr,
+      .a-enter-vr-button,
+      .a-enter-ar,
+      .a-enter-xr,
+      .a-fullscreen-ui,
+      .a-enter-fullscreen {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="info-label">Телефон</span>
+        <span class="info-value">+7 (926) 452-35-60</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Часы работы</span>
+        <span class="info-value">Пн - Сб 9:00 - 19:00</span>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>VR Garage</span>
+      </a>
+
+      <label class="search-wrap">
+        <input id="search-input" type="search" placeholder="Поиск машины по марке или модели..." />
+      </label>
+
+      <div class="topbar-actions">
+        <a class="about-btn" href="/about">О нас</a>
+        <a class="about-btn" href="/faq">FAQ</a>
+        <a class="about-btn" href="/contacts">Контакты</a>
+        <a class="auth-btn" href="/admin/index.html">Регистрация / Вход</a>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero-photo-wrap">
+        <div class="hero-news-layout">
+          <aside class="news-column news-column-left" aria-label="Новости">
+            <h3>Новости</h3>
+            <article class="news-item news-featured">
+              <p class="news-kicker">Новости</p>
+              <h4>Новые модели BMW и Porsche уже доступны в 3D-каталоге</h4>
+              <p class="news-meta">Обновлено сегодня</p>
+            </article>
+            <article class="news-item">
+              <p class="news-kicker">Новости</p>
+              <h4>Оптимизирована загрузка сцены и ускорен первый рендер</h4>
+              <p class="news-meta">Техническое обновление</p>
+            </article>
+          </aside>
+
+          <section class="hero-photo">
+            <img src="/assets/uploads/images/vr_garage_hero.png" alt="Автомобиль в VR Garage" />
+            <div class="hero-caption">
+              <h1>Найди автомобиль и открой режим осмотра</h1>
+              <p>Нажми на карточку в каталоге ниже, чтобы перейти к интерактивному просмотру.</p>
+              <a class="hero-about-link" href="/about">О проекте</a>
+            </div>
+          </section>
+
+          <aside class="news-column news-column-right" aria-label="Обновления">
+            <h3>Обновления</h3>
+            <article class="news-item">
+              <h4>FAQ дополнен ответами по запуску VR на совместимых устройствах</h4>
+              <p class="news-meta">Поддержка пользователей</p>
+            </article>
+            <article class="news-item">
+              <h4>Раздел «Контакты» теперь сохраняет заявки сразу в базу данных</h4>
+              <p class="news-meta">Интеграция с БД</p>
+            </article>
+            <article class="news-item">
+              <h4>Улучшена адаптация интерфейса под широкие и узкие экраны</h4>
+              <p class="news-meta">Интерфейс и UX</p>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section class="catalog-section">
+        <div class="section-head">
+          <h2>Каталог авто</h2>
+          <p id="status-line">Загрузка каталога...</p>
+        </div>
+        <div id="car-list" class="car-grid" aria-label="Каталог автомобилей"></div>
+      </section>
+
+      <section id="viewer-section" class="viewer-section" hidden>
+        <div class="viewer-head">
+          <div class="viewer-copy">
+            <span class="viewer-badge">Шаг 2 · Режим 3D-осмотра</span>
+            <h2 id="car-title">Режим осмотра</h2>
+            <p id="car-description">Выбери автомобиль из каталога выше.</p>
+          </div>
+          <div class="viewer-actions">
+            <button id="toggle-spin" type="button">Включить вращение</button>
+            <button id="reset-view" type="button">Сбросить вид</button>
+            <button id="enter-vr" type="button">Войти в VR</button>
+                      </div>
+        </div>
+        <a-scene
+          id="scene"
+          embedded
+          renderer="colorManagement: true; antialias: true; exposure: 1.75"
+          background="color: #0a0f18"
+          fog="type: exponential; color: #0f1728; density: 0.018"
+          vr-mode-ui="enabled: false"
+          xr-mode-ui="enabled: false"
+          loading-screen="enabled: false"
+        >
+          <a-entity id="camera-rig" position="0 1.65 3.2">
+            <a-camera id="main-camera" look-controls="enabled: true; pointerLockEnabled: false; touchEnabled: true; mouseEnabled: true" wasd-controls="enabled: true; acceleration: 42; fly: true">
+              <a-entity id="camera-headlight" light="type: point; intensity: 1.35; distance: 18; decay: 1; color: #ffffff" position="0 0 0.15"></a-entity>
+            </a-camera>
+          </a-entity>
+
+          <a-entity light="type: ambient; intensity: 1.15; color: #f5f7ff"></a-entity>
+          <a-entity light="type: hemisphere; intensity: 1.25; color: #e8f2ff; groundColor: #334155"></a-entity>
+          <a-entity light="type: directional; intensity: 1.4; color: #f8fafc" position="3 7 4"></a-entity>
+          <a-entity light="type: directional; intensity: 0.9; color: #bfdbfe" position="-4 5 -7"></a-entity>
+          <a-entity light="type: point; intensity: 1.1; color: #fff4d6; distance: 24" position="0 6 -2"></a-entity>
+          <a-entity light="type: point; intensity: 0.85; color: #cfe4ff; distance: 20" position="0 3 -6"></a-entity>
+          <a-sky color="#1e3a8a"></a-sky>
+
+          <a-plane
+            class="teleportable"
+           
+           
+            rotation="-90 0 0"
+            width="20"
+            height="22"
+            color="#1e293b"
+            material="roughness: 0.9; metalness: 0.05"
+          ></a-plane>
+          <a-plane
+           
+           
+            rotation="90 0 0"
+            position="0 8 0"
+            width="20"
+            height="22"
+            color="#334155"
+            material="roughness: 0.88; metalness: 0.08"
+          ></a-plane>
+
+          <a-plane
+            position="-6.875 4 -11"
+            width="6.25"
+            height="7"
+           
+           
+            color="#3f4c5f"
+            material="roughness: 0.9; metalness: 0.06"
+          ></a-plane>
+          <a-plane
+            position="6.875 4 -11"
+            width="6.25"
+            height="7"
+           
+           
+            color="#3f4c5f"
+            material="roughness: 0.9; metalness: 0.06"
+          ></a-plane>
+          <a-plane
+            position="0 6.6 -11"
+            width="7.5"
+            height="0.8"
+           
+           
+            color="#475569"
+            material="roughness: 0.88; metalness: 0.08"
+          ></a-plane>
+
+          <a-plane
+            position="-10 4 0"
+            rotation="0 90 0"
+            width="22"
+            height="7"
+           
+           
+            color="#1f2937"
+            material="roughness: 0.92; metalness: 0.04"
+          ></a-plane>
+          <a-plane
+            position="10 4 0"
+            rotation="0 -90 0"
+            width="22"
+            height="7"
+           
+           
+            color="#1f2937"
+            material="roughness: 0.92; metalness: 0.04"
+          ></a-plane>
+
+          <a-box id="garage-door" position="0 3.6 -10.95" width="7.5" height="5.2" depth="0.08" color="#7b8696" material="roughness: 0.58; metalness: 0.5"></a-box>
+          
+          <a-box position="-9.5 4 -10.6" width="0.5" height="8" depth="0.5" color="#1f2937"></a-box>
+          <a-box position="9.5 4 -10.6" width="0.5" height="8" depth="0.5" color="#1f2937"></a-box>
+          <a-box position="-9.5 4 10.6" width="0.5" height="8" depth="0.5" color="#1f2937"></a-box>
+          <a-box position="9.5 4 10.6" width="0.5" height="8" depth="0.5" color="#1f2937"></a-box>
+
+          <a-box position="0 7.2 -3.5" width="4" height="0.15" depth="0.55" color="#f8fafc" material="emissive: #dbeafe; emissiveIntensity: 0.95"></a-box>
+          <a-box position="0 7.2 -8.2" width="4" height="0.15" depth="0.55" color="#f8fafc" material="emissive: #dbeafe; emissiveIntensity: 0.95"></a-box>
+          <a-box position="-4.3 7.2 -5.8" width="3.4" height="0.15" depth="0.5" color="#f8fafc" material="emissive: #e2e8f0; emissiveIntensity: 0.75"></a-box>
+          <a-box position="4.3 7.2 -5.8" width="3.4" height="0.15" depth="0.5" color="#f8fafc" material="emissive: #e2e8f0; emissiveIntensity: 0.75"></a-box>
+
+          <a-plane class="teleportable" position="0 0.01 -2" rotation="-90 0 0" width="5.8" height="2.8" color="#0f172a" material="opacity: 0.55; transparent: true"></a-plane>
+
+          <a-entity id="garage-props-source" visible="false" position="0 0.02 -8.55" rotation="0 180 0" scale="1 1 1"></a-entity>
+
+
+          <a-entity id="turntable" position="0 0 -2">
+            <a-cylinder
+              position="0 0.07 0"
+              radius="1.78"
+              height="0.14"
+              color="#0f172a"
+              material="metalness: 0.35; roughness: 0.38"
+            ></a-cylinder>
+            <a-cylinder
+              position="0 0.1 0"
+              radius="1.46"
+              height="0.04"
+              color="#2563eb"
+              material="emissive: #1d4ed8; emissiveIntensity: 0.25; metalness: 0.25; roughness: 0.45"
+            ></a-cylinder>
+            <a-entity id="car-anchor" position="0 0.35 0"></a-entity>
+          </a-entity>
+        </a-scene>
+      </section>
+    </main>
+
+    <script src="/static/js/catalog.js?v=20260511c"></script>
+    <script src="/static/js/auth-state.js?v=20260422a"></script>
+  </body>
+</html>

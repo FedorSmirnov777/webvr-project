@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Garage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/site.css" />
+  </head>
+  <body>
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="info-label">Телефон</span>
+        <span class="info-value">+7 (926) 452-35-60</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Часы работы</span>
+        <span class="info-value">Пн - Сб 9:00 - 19:00</span>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>VR Garage</span>
+      </a>
+      <div class="topbar-actions">
+        <a class="top-link" href="/catalog">Каталог</a>
+        <a class="top-link" href="/about">О нас</a>
+        <a class="top-link" href="/faq">FAQ</a>
+        <a class="top-link" href="/contacts">Контакты</a>
+      </div>
+    </header>
+
+    <main class="welcome-page">
+      <section class="welcome-panel wheel-layout">
+        <div class="welcome-copy">
+          <p class="welcome-tag">Welcome</p>
+          <h1>Добро пожаловать в VR Garage</h1>
+          <p>
+            Мы начинающий проект и ценим каждого пользователя.
+            Точный текст приветствия добавим по твоему финальному варианту.
+          </p>
+          <a class="cta-next" href="/catalog">Далее</a>
+        </div>
+
+        <div class="wheel-box">
+          <div id="wheelInteractive" class="wheel-interactive" role="img" aria-label="Интерактивное колесо"></div>
+          <p class="wheel-hint">Зажми и крути колесо курсором или пальцем</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/js/home-wheel.js"></script>
+  </body>
+</html>

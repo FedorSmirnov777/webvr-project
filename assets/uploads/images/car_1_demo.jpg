@@ -1,0 +1,63 @@
+# AutoVR Catalog (Web-VR + Backend + SQLite)
+
+Веб‑VR автокаталог для интерактивного осмотра реальных марок/моделей автомобилей.
+
+## Что реализовано сейчас
+
+- Backend API на Python (`backend/server.py`).
+- SQLite БД (`data/autovr.sqlite3`) со схемой брендов/авто.
+- Админ-панель без кода (`/admin/index.html`):
+  - создание бренда,
+  - создание черновика карточки,
+  - загрузка 3D моделей,
+  - загрузка фото,
+  - добавление комплектаций и цен,
+  - публикация карточки.
+- Публичный каталог показывает только опубликованные авто (`published = 1`).
+
+## Запуск
+
+```bash
+cd /Users/admin/Documents/Playground
+python3 backend/server.py
+```
+
+Открыть:
+
+- Каталог: [http://127.0.0.1:8080](http://127.0.0.1:8080)
+- Админка: [http://127.0.0.1:8080/admin/index.html](http://127.0.0.1:8080/admin/index.html)
+
+## Как работать в админке
+
+1. Добавь марку (если нужно).
+2. Создай черновик карточки авто.
+3. Выбери авто в списке.
+4. Загрузи 3D модель (`.glb/.gltf`) и фото.
+5. Добавь 1+ комплектаций (название, цена, JSON-фичи).
+6. Нажми `Опубликовать карточку`.
+
+После публикации машина появится на публичной витрине.
+
+## Структура загружаемых файлов
+
+- 3D: `assets/uploads/models/...`
+- Фото: `assets/uploads/images/...`
+
+## API (включая admin)
+
+- `GET /api/health`
+- `GET /api/brands`
+- `GET /api/cars`
+- `GET /api/cars/<id>`
+- `GET /api/admin/cars?include_unpublished=1`
+- `GET /api/admin/cars/<id>`
+- `POST /api/admin/brands`
+- `POST /api/admin/cars`
+- `POST /api/admin/cars/<id>/upload?kind=model|image`
+- `POST /api/admin/cars/<id>/trims`
+- `POST /api/admin/cars/<id>/publish`
+
+## Важно
+
+На этом шаге админка сделана без авторизации (для локальной разработки).
+Следующий шаг — добавить login/roles и защиту `/api/admin/*`.

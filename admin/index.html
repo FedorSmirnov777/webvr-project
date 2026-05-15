@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Garage | Вход</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="auth-layout">
+      <section class="auth-visual" aria-hidden="true"></section>
+
+      <section class="auth-panel">
+        <div class="auth-head">
+          <p class="logo">VR Garage</p>
+          <h1>Вход или регистрация</h1>
+          <p class="sub">
+            Введите имя пользователя и пароль. После входа имя будет отображаться в шапке сайта.
+          </p>
+        </div>
+
+        <div class="auth-switch">
+          <button id="mode-login" class="mode-btn active" type="button">Вход</button>
+          <button id="mode-register" class="mode-btn" type="button">Регистрация</button>
+        </div>
+
+        <form id="auth-form" class="auth-form">
+          <label>
+            Имя пользователя
+            <input id="username" name="username" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            Пароль
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button id="submit-btn" type="submit">Войти</button>
+        </form>
+
+        <div id="auth-message" class="auth-message" aria-live="polite"></div>
+
+        <section id="profile-box" class="profile-box" hidden>
+          <p class="profile-title">Вы вошли как <strong id="profile-name"></strong></p>
+          <div class="profile-actions">
+            <a class="go-catalog" href="/catalog">Перейти в каталог</a>
+            <button id="logout-btn" type="button">Выйти</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
