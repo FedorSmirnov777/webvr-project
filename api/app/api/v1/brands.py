@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.catalog import Brand
 from app.models.user import UserRole
 from app.schemas.catalog import BrandCreate, BrandOut
+from app.scripts.bootstrap import main as bootstrap_main
 from app.services.auth import require_roles
 
 router = APIRouter()
@@ -13,7 +14,12 @@ router = APIRouter()
 
 @router.get("", response_model=list[BrandOut])
 def list_brands(db: Session = Depends(get_db)) -> list[Brand]:
-    return db.query(Brand).order_by(Brand.name.asc()).all()
+    try:
+        return db.query(Brand).order_by(Brand.name.asc()).all()
+    except OperationalError:
+        db.rollback()
+        bootstrap_main()
+        return db.query(Brand).order_by(Brand.name.asc()).all()
 
 
 @router.post("", response_model=BrandOut)

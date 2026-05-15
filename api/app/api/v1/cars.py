@@ -2,13 +2,14 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sqlalchemy import or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.catalog import Brand, Car, CarAsset, CarTrim
 from app.models.user import User, UserRole
 from app.schemas.catalog import AssetOut, CarCreate, CarOut, CarUpdate, TrimCreate, TrimOut
+from app.scripts.bootstrap import main as bootstrap_main
 from app.services.auth import get_optional_user, require_roles
 from app.services.storage import StorageService
 from app.utils.rate_limit import limiter
@@ -24,7 +25,12 @@ def list_cars(
     db: Session = Depends(get_db),
     user: User | None = Depends(get_optional_user),
 ) -> list[Car]:
-    query = db.query(Car)
+    try:
+        query = db.query(Car)
+    except OperationalError:
+        db.rollback()
+        bootstrap_main()
+        query = db.query(Car)
     if brand_id:
         query = query.filter(Car.brand_id == brand_id)
 
@@ -37,7 +43,20 @@ def list_cars(
         pattern = f"%{search}%"
         query = query.filter(or_(Car.model_name.ilike(pattern), Car.body_type.ilike(pattern)))
 
-    return query.order_by(Car.updated_at.desc()).all()
+    try:
+        return query.order_by(Car.updated_at.desc()).all()
+    except OperationalError:
+        db.rollback()
+        bootstrap_main()
+        query = db.query(Car)
+        if brand_id:
+            query = query.filter(Car.brand_id == brand_id)
+        if published_only:
+            query = query.filter(Car.published.is_(True))
+        if search:
+            pattern = f"%{search}%"
+            query = query.filter(or_(Car.model_name.ilike(pattern), Car.body_type.ilike(pattern)))
+        return query.order_by(Car.updated_at.desc()).all()
 
 
 @router.post("", response_model=CarOut)
@@ -187,7 +206,12 @@ def list_trims(car_id: int, db: Session = Depends(get_db)) -> list[CarTrim]:
 
 @router.get("/{car_id}")
 def get_car(car_id: int, db: Session = Depends(get_db), user: User | None = Depends(get_optional_user)) -> dict:
-    car = db.query(Car).filter(Car.id == car_id).first()
+    try:
+        car = db.query(Car).filter(Car.id == car_id).first()
+    except OperationalError:
+        db.rollback()
+        bootstrap_main()
+        car = db.query(Car).filter(Car.id == car_id).first()
     if not car:
         raise HTTPException(status_code=404, detail="Car not found")
 
