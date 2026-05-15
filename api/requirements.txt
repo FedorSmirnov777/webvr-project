@@ -8,3 +8,7 @@ requests
 alembic
 sentry-sdk
 slowapi
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+email-validator
