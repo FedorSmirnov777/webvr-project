@@ -1,9 +1,22 @@
+import os
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parents[3]
+
+
+def _default_sqlite_url() -> str:
+    # Render: prefer persistent disk path when attached; fallback to /tmp.
+    render_disk = os.getenv("RENDER_DISK_PATH")
+    if render_disk:
+        db_path = Path(render_disk) / "autovr_fastapi.sqlite3"
+    elif os.getenv("RENDER"):
+        db_path = Path("/tmp") / "autovr_fastapi.sqlite3"
+    else:
+        db_path = BASE_DIR / "data" / "autovr_fastapi.sqlite3"
+    return f"sqlite:///{db_path.as_posix()}"
 
 
 class Settings(BaseSettings):
@@ -19,7 +32,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(default=60 * 8, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
     database_url: str = Field(
-        default=f"sqlite:///{(BASE_DIR / 'data' / 'autovr_fastapi.sqlite3').as_posix()}",
+        default=_default_sqlite_url(),
         alias="DATABASE_URL",
     )
 
