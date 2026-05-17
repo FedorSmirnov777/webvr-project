@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sqlalchemy import or_
@@ -15,6 +16,7 @@ from app.services.storage import StorageService
 from app.utils.rate_limit import limiter
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=list[CarOut])
@@ -29,8 +31,12 @@ def list_cars(
         query = db.query(Car)
     except OperationalError:
         db.rollback()
-        bootstrap_main()
-        query = db.query(Car)
+        try:
+            bootstrap_main()
+            query = db.query(Car)
+        except Exception:
+            logger.exception("Bootstrap failed while loading cars")
+            return []
     if brand_id:
         query = query.filter(Car.brand_id == brand_id)
 
@@ -47,8 +53,12 @@ def list_cars(
         return query.order_by(Car.updated_at.desc()).all()
     except OperationalError:
         db.rollback()
-        bootstrap_main()
-        query = db.query(Car)
+        try:
+            bootstrap_main()
+            query = db.query(Car)
+        except Exception:
+            logger.exception("Bootstrap failed on retry while loading cars")
+            return []
         if brand_id:
             query = query.filter(Car.brand_id == brand_id)
         if published_only:

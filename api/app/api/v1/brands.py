@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
@@ -10,6 +12,7 @@ from app.scripts.bootstrap import main as bootstrap_main
 from app.services.auth import require_roles
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=list[BrandOut])
@@ -18,8 +21,12 @@ def list_brands(db: Session = Depends(get_db)) -> list[Brand]:
         return db.query(Brand).order_by(Brand.name.asc()).all()
     except OperationalError:
         db.rollback()
-        bootstrap_main()
-        return db.query(Brand).order_by(Brand.name.asc()).all()
+        try:
+            bootstrap_main()
+            return db.query(Brand).order_by(Brand.name.asc()).all()
+        except Exception:
+            logger.exception("Bootstrap failed while loading brands")
+            return []
 
 
 @router.post("", response_model=BrandOut)
