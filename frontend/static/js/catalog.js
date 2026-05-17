@@ -88,7 +88,7 @@ const preferredCatalogCars = new Set([
 const localModelConfigs = {
   "Mercedes-Benz E190": {
     type: "gltf",
-    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/mercedes_190e_evo_1982.glb",
+    url: "/assets/models/mercedes_190e_evo_1982.glb",
     scale: "1 1 1",
     rotation: "0 0 0",
     position: "0 0 0",
@@ -96,7 +96,7 @@ const localModelConfigs = {
   },
   "Toyota Camry": {
     type: "gltf",
-    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/toyota_camry_2024.glb",
+    url: "/assets/models/toyota_camry_2024.glb",
     scale: "1 1 1",
     rotation: "0 180 0",
     position: "0 0 0",
@@ -104,7 +104,7 @@ const localModelConfigs = {
   },
   "BMW X5": {
     type: "gltf",
-    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/bmw_x5_2024.glb",
+    url: "/assets/models/bmw_x5_2024.glb",
     scale: "1 1 1",
     rotation: "0 180 0",
     position: "0 0 0",
@@ -112,7 +112,7 @@ const localModelConfigs = {
   },
   "Porsche 911 Carrera": {
     type: "gltf",
-    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/1989_porsche_911_964_carrera_4_safe.glb",
+    url: "/assets/models/1989_porsche_911_964_carrera_4_safe.glb",
     scale: "1 1 1",
     rotation: "0 0 0",
     position: "0 0 0",
