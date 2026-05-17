@@ -96,18 +96,6 @@ const localModelConfigs = {
   }
 };
 
-const hiddenCatalogCars = new Set([
-  "Mercedes-Benz C-Class",
-  "Audi A6",
-  "Tesla Model 3"
-]);
-
-function isHiddenCatalogCar(car) {
-  const brandName = brandsById.get(car.brand_id) || "";
-  const key = `${brandName} ${car.model_name || ""}`.trim();
-  return hiddenCatalogCars.has(key);
-}
-
 function setStatus(message) {
   statusLineEl.textContent = message;
 }
@@ -360,7 +348,6 @@ function cardLabel(car) {
 function renderCatalog() {
   const search = searchInputEl.value.trim().toLowerCase();
   const filtered = cars.filter((car) => {
-    if (isHiddenCatalogCar(car)) return false;
     if (!search) return true;
     const brandName = brandsById.get(car.brand_id) || "";
     const text = `${brandName} ${car.model_name || ""}`.toLowerCase();
@@ -818,7 +805,6 @@ async function init() {
     ]);
     brandsById = new Map((brands || []).map((brand) => [brand.id, brand.name]));
     cars = Array.isArray(payload) ? payload : [];
-    cars = cars.filter((car) => !isHiddenCatalogCar(car));
     ensureLocalE190Car();
 
     if (!cars.length) {
