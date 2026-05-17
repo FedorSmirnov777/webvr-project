@@ -68,6 +68,23 @@ const localCardImages = {
   "Porsche 911 Carrera": "/assets/uploads/images/porsche_911_carrera.jpg"
 };
 
+const modelBrandFallback = {
+  Camry: "Toyota",
+  "X5": "BMW",
+  "911 Carrera": "Porsche",
+  "C-Class": "Mercedes-Benz",
+  "Model 3": "Tesla",
+  A6: "Audi",
+  E190: "Mercedes-Benz"
+};
+
+const preferredCatalogCars = new Set([
+  "Mercedes-Benz E190",
+  "Toyota Camry",
+  "BMW X5",
+  "Porsche 911 Carrera"
+]);
+
 const localModelConfigs = {
   "Mercedes-Benz E190": {
     type: "gltf",
@@ -98,6 +115,16 @@ const localModelConfigs = {
 
 function setStatus(message) {
   statusLineEl.textContent = message;
+}
+
+function resolveBrandName(car) {
+  const fromMap = brandsById.get(car.brand_id);
+  if (fromMap && String(fromMap).trim()) return String(fromMap).trim();
+  return modelBrandFallback[car.model_name] || "Марка";
+}
+
+function carDisplayName(car) {
+  return `${resolveBrandName(car)} ${car.model_name || ""}`.trim();
 }
 
 async function fetchJson(url) {
@@ -146,8 +173,7 @@ function createFallbackModel(car) {
 }
 
 function resolveLocalModelConfig(car) {
-  const brandName = brandsById.get(car.brand_id) || "";
-  const modelKey = `${brandName} ${car.model_name || ""}`.trim();
+  const modelKey = carDisplayName(car);
   return localModelConfigs[modelKey] || null;
 }
 
@@ -329,7 +355,7 @@ function createModelEntity(car) {
     activeModelEl = createFallbackModel(car);
     carAnchor.appendChild(activeModelEl);
     setStatus("3D-модель не загрузилась вовремя. Показан запасной вариант.");
-  }, HEADSET_VR_MODE ? 18000 : 8000);
+  }, HEADSET_VR_MODE ? 22000 : 15000);
 
   return model;
 }
@@ -348,8 +374,9 @@ function cardLabel(car) {
 function renderCatalog() {
   const search = searchInputEl.value.trim().toLowerCase();
   const filtered = cars.filter((car) => {
+    if (!preferredCatalogCars.has(carDisplayName(car))) return false;
     if (!search) return true;
-    const brandName = brandsById.get(car.brand_id) || "";
+    const brandName = resolveBrandName(car);
     const text = `${brandName} ${car.model_name || ""}`.toLowerCase();
     return text.includes(search);
   });
@@ -367,7 +394,7 @@ function renderCatalog() {
     card.className = "car-item";
     card.dataset.id = String(car.id);
 
-    const brandName = brandsById.get(car.brand_id) || "Марка";
+    const brandName = resolveBrandName(car);
     const localImageKey = `${brandName} ${car.model_name}`.trim();
     const imageSrc =
       localCardImages[localImageKey] ||
@@ -413,7 +440,7 @@ async function selectCar(carId) {
     item.classList.toggle("active", item.dataset.id === String(carId));
   });
 
-  const brandName = brandsById.get(activeCar.brand_id) || "Марка";
+  const brandName = resolveBrandName(activeCar);
   const name = `${brandName} ${activeCar.model_name}`;
   titleEl.textContent = name;
   descEl.textContent = activeCar.description || "Описание появится позже.";
@@ -550,8 +577,7 @@ function setupVrControl() {
 
 function ensureLocalE190Car() {
   const hasE190 = cars.some((car) => {
-    const brandName = brandsById.get(car.brand_id) || "";
-    return `${brandName} ${car.model_name || ""}`.trim().toLowerCase() === "mercedes-benz e190";
+    return carDisplayName(car).toLowerCase() === "mercedes-benz e190";
   });
   if (hasE190) return;
 
