@@ -94,14 +94,21 @@ const localModelConfigs = {
     position: "0 0 0",
     lift: 0.08
   },
-  "BMW X5": {
-    type: "obj",
-    objUrl: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.obj",
-    mtlUrl: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.mtl",
-    scale: "0.02 0.02 0.02",
+  "Toyota Camry": {
+    type: "gltf",
+    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/toyota_camry_2024.glb",
+    scale: "1 1 1",
     rotation: "0 180 0",
     position: "0 0 0",
-    lift: 0.09
+    lift: 0.08
+  },
+  "BMW X5": {
+    type: "gltf",
+    url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/bmw_x5_2024.glb",
+    scale: "1 1 1",
+    rotation: "0 180 0",
+    position: "0 0 0",
+    lift: 0.08
   },
   "Porsche 911 Carrera": {
     type: "gltf",
