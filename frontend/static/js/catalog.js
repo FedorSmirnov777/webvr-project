@@ -58,62 +58,6 @@ function setLightVrMode(enabled) {
 }
 
 
-const localCardImages = {
-  "Toyota Camry": "/assets/uploads/images/toyota_camry.jpg",
-  "BMW X5": "/assets/uploads/images/bmw_x5.jpg",
-  "Mercedes-Benz C-Class": "/assets/uploads/images/mercedes_c_class.jpg",
-  "Mercedes-Benz E190": "/assets/uploads/images/e190.jpg",
-  "Audi A6": "/assets/uploads/images/audi_a6.jpg",
-  "Tesla Model 3": "/assets/uploads/images/tesla_model_3.jpg",
-  "Porsche 911 Carrera": "/assets/uploads/images/porsche_911_carrera.jpg"
-};
-
-const modelBrandFallback = {
-  Camry: "Toyota",
-  "X5": "BMW",
-  "911 Carrera": "Porsche",
-  "C-Class": "Mercedes-Benz",
-  "Model 3": "Tesla",
-  A6: "Audi",
-  E190: "Mercedes-Benz"
-};
-
-const localModelConfigs = {
-  "Mercedes-Benz E190": {
-    type: "gltf",
-    url: "/assets/models/mercedes_190e_evo_1982.glb",
-    scale: "1 1 1",
-    rotation: "0 0 0",
-    position: "0 0 0",
-    lift: 0.08
-  },
-  "Toyota Camry": {
-    type: "gltf",
-    url: "/assets/models/toyota_camry/scene.gltf",
-    scale: "1 1 1",
-    rotation: "0 180 0",
-    position: "0 0 0",
-    lift: 0.08
-  },
-  "BMW X5": {
-    type: "obj",
-    objUrl: "/assets/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.obj",
-    mtlUrl: "/assets/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.mtl",
-    scale: "0.02 0.02 0.02",
-    rotation: "0 180 0",
-    position: "0 0 0",
-    lift: 0.09
-  },
-  "Porsche 911 Carrera": {
-    type: "gltf",
-    url: "/assets/models/1989_porsche_911_964_carrera_4_safe.glb",
-    scale: "1 1 1",
-    rotation: "0 0 0",
-    position: "0 0 0",
-    lift: 0.08
-  }
-};
-
 function setStatus(message) {
   statusLineEl.textContent = message;
 }
@@ -121,7 +65,7 @@ function setStatus(message) {
 function resolveBrandName(car) {
   const fromMap = brandsById.get(car.brand_id);
   if (fromMap && String(fromMap).trim()) return String(fromMap).trim();
-  return modelBrandFallback[car.model_name] || "Марка";
+  return "Марка";
 }
 
 function carDisplayName(car) {
@@ -171,11 +115,6 @@ function createFallbackModel(car) {
 
   [body, cabin, ...wheels].forEach((part) => wrapper.appendChild(part));
   return wrapper;
-}
-
-function resolveLocalModelConfig(car) {
-  const modelKey = carDisplayName(car);
-  return localModelConfigs[modelKey] || null;
 }
 
 function fitModelToParkingSlot(model, localConfig = {}) {
@@ -263,7 +202,7 @@ function createModelEntity(car) {
       ...car,
       config: {
         ...(car.config || {}),
-        model_url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/toyota_camry/scene.gltf"
+        model_url: "/assets/models/toyota_camry/scene.gltf"
       }
     };
     const model = document.createElement("a-entity");
@@ -296,11 +235,11 @@ function createModelEntity(car) {
     return model;
   }
 
-  const localConfig = resolveLocalModelConfig(car);
-  const modelType = localConfig?.type || "gltf";
-  const modelUrl = (localConfig?.url || car.config?.model_url || "").trim();
-  const objUrl = (localConfig?.objUrl || "").trim();
-  const mtlUrl = (localConfig?.mtlUrl || "").trim();
+  const localConfig = car.config || {};
+  const modelType = localConfig?.model_type || "gltf";
+  const modelUrl = (localConfig?.model_url || "").trim();
+  const objUrl = (localConfig?.obj_url || "").trim();
+  const mtlUrl = (localConfig?.mtl_url || "").trim();
 
   if (modelType === "obj") {
     if (!objUrl) {
@@ -395,9 +334,7 @@ function renderCatalog() {
     card.dataset.id = String(car.id);
 
     const brandName = resolveBrandName(car);
-    const localImageKey = `${brandName} ${car.model_name}`.trim();
     const imageSrc =
-      localCardImages[localImageKey] ||
       car.config?.hero_image_url ||
       car.hero_image_url ||
       "/assets/uploads/images/car_1_demo.jpg";
