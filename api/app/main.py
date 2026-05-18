@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -10,6 +11,7 @@ from slowapi.errors import RateLimitExceeded
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import setup_logging
+from app.scripts.bootstrap import main as bootstrap_main
 from app.utils.rate_limit import limiter, rate_limit_exception_handler
 
 setup_logging()
@@ -22,7 +24,13 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 PAGES_DIR = FRONTEND_DIR / "pages"
 STATIC_DIR = FRONTEND_DIR / "static"
 
-app = FastAPI(title="VR Garage API", version="2.0.0")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    bootstrap_main()
+    yield
+
+
+app = FastAPI(title="VR Garage API", version="2.0.0", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
 
@@ -39,7 +47,6 @@ app.include_router(api_router, prefix="/api/v1")
 app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "assets")), name="assets")
 app.mount("/admin", StaticFiles(directory=str(BASE_DIR / "admin"), html=True), name="admin")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
 
 @app.get("/api/health")
 def health() -> dict[str, bool]:
