@@ -78,13 +78,6 @@ const modelBrandFallback = {
   E190: "Mercedes-Benz"
 };
 
-const preferredCatalogCars = new Set([
-  "Mercedes-Benz E190",
-  "Toyota Camry",
-  "BMW X5",
-  "Porsche 911 Carrera"
-]);
-
 const localModelConfigs = {
   "Mercedes-Benz E190": {
     type: "gltf",
@@ -96,19 +89,20 @@ const localModelConfigs = {
   },
   "Toyota Camry": {
     type: "gltf",
-    url: "/assets/models/toyota_camry_2024.glb",
+    url: "/assets/models/toyota_camry/scene.gltf",
     scale: "1 1 1",
     rotation: "0 180 0",
     position: "0 0 0",
     lift: 0.08
   },
   "BMW X5": {
-    type: "gltf",
-    url: "/assets/models/bmw_x5_2024.glb",
-    scale: "1 1 1",
+    type: "obj",
+    objUrl: "/assets/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.obj",
+    mtlUrl: "/assets/models/bmw-m3-sedan-2013/unpacked/BMW%20M3%20Sedan%20topaz%20blue.mtl",
+    scale: "0.02 0.02 0.02",
     rotation: "0 180 0",
     position: "0 0 0",
-    lift: 0.08
+    lift: 0.09
   },
   "Porsche 911 Carrera": {
     type: "gltf",
@@ -381,7 +375,6 @@ function cardLabel(car) {
 function renderCatalog() {
   const search = searchInputEl.value.trim().toLowerCase();
   const filtered = cars.filter((car) => {
-    if (!preferredCatalogCars.has(carDisplayName(car))) return false;
     if (!search) return true;
     const brandName = resolveBrandName(car);
     const text = `${brandName} ${car.model_name || ""}`.toLowerCase();
@@ -578,38 +571,6 @@ function setupVrControl() {
       enterVrBtn.textContent = "VR недоступен";
       enterVrBtn.disabled = true;
       setStatus("VR режим недоступен в этом браузере/устройстве.");
-    }
-  });
-}
-
-function ensureLocalE190Car() {
-  const hasE190 = cars.some((car) => {
-    return carDisplayName(car).toLowerCase() === "mercedes-benz e190";
-  });
-  if (hasE190) return;
-
-  let mercedesBrandId = null;
-  for (const [id, name] of brandsById.entries()) {
-    if (String(name).toLowerCase().includes("mercedes")) {
-      mercedesBrandId = id;
-      break;
-    }
-  }
-
-  if (mercedesBrandId === null) {
-    mercedesBrandId = -190;
-    brandsById.set(mercedesBrandId, "Mercedes-Benz");
-  }
-
-  cars.unshift({
-    id: "local-mercedes-e190",
-    brand_id: mercedesBrandId,
-    model_name: "E190",
-    body_type: "Sedan",
-    description: "Mercedes-Benz 190E EVO (локальная 3D-модель)",
-    base_price: null,
-    config: {
-      model_url: "https://pub-c78352746a444910a1ab06a0a85ab7bb.r2.dev/models/mercedes_190e_evo_1982.glb"
     }
   });
 }
@@ -838,7 +799,6 @@ async function init() {
     ]);
     brandsById = new Map((brands || []).map((brand) => [brand.id, brand.name]));
     cars = Array.isArray(payload) ? payload : [];
-    ensureLocalE190Car();
 
     if (!cars.length) {
       listEl.innerHTML = "";
