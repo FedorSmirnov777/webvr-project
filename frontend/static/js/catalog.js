@@ -10,10 +10,6 @@ const enterVrBtn = document.getElementById("enter-vr");
 const carAnchor = document.getElementById("car-anchor");
 const turntable = document.getElementById("turntable");
 const garageDoorEl = document.getElementById("garage-door");
-const vrMenuEl = document.getElementById("vr-menu");
-const vrBtnResetEl = document.getElementById("vr-btn-reset");
-const vrBtnSpinEl = document.getElementById("vr-btn-spin");
-const vrBtnExitEl = document.getElementById("vr-btn-exit");
 
 let cars = [];
 let brandsById = new Map();
@@ -21,42 +17,13 @@ let activeCar = null;
 let activeModelEl = null;
 let spinning = false;
 let yaw = 0;
+let filterBrandId = "";
+let filterBodyType = "";
 
 const isQuestBrowser = /OculusBrowser|Quest/i.test(navigator.userAgent || "");
 const query = new URLSearchParams(window.location.search);
 const forceHeadsetMode = query.get("vrhmd") === "1";
 const HEADSET_VR_MODE = isQuestBrowser || forceHeadsetMode;
-
-let lightVrMode = false;
-const vrTextureFallbacks = [
-  { selector: "a-plane[width='20'][height='22'][rotation='-90 0 0']", color: "#1e293b" },
-  { selector: "a-plane[width='20'][height='22'][rotation='90 0 0']", color: "#334155" },
-  { selector: "a-plane[position='-6.875 4 -11']", color: "#3f4c5f" },
-  { selector: "a-plane[position='6.875 4 -11']", color: "#3f4c5f" },
-  { selector: "a-plane[position='0 6.6 -11']", color: "#475569" },
-  { selector: "a-plane[position='-10 4 0']", color: "#1f2937" },
-  { selector: "a-plane[position='10 4 0']", color: "#1f2937" }
-];
-
-function setLightVrMode(enabled) {
-  lightVrMode = Boolean(enabled);
-  const source = document.getElementById("garage-props-source");
-  if (source) {
-    if (lightVrMode) {
-      source.removeAttribute("fbx-model");
-      source.setAttribute("visible", "false");
-    }
-  }
-
-  vrTextureFallbacks.forEach(({ selector, color }) => {
-    const el = document.querySelector(selector);
-    if (!el || !lightVrMode) return;
-    el.removeAttribute("src");
-    el.setAttribute("color", color);
-    el.setAttribute("material", "roughness: 0.9; metalness: 0.05");
-  });
-}
-
 
 function setStatus(message) {
   statusLineEl.textContent = message;
@@ -66,10 +33,6 @@ function resolveBrandName(car) {
   const fromMap = brandsById.get(car.brand_id);
   if (fromMap && String(fromMap).trim()) return String(fromMap).trim();
   return "Марка";
-}
-
-function carDisplayName(car) {
-  return `${resolveBrandName(car)} ${car.model_name || ""}`.trim();
 }
 
 async function fetchJson(url) {
@@ -197,105 +160,87 @@ function fitModelToParkingSlot(model, localConfig = {}) {
 }
 
 function createModelEntity(car) {
+  // In headset mode always use the lightweight Toyota GLTF
   if (HEADSET_VR_MODE) {
-    const headsetCar = {
-      ...car,
-      config: {
-        ...(car.config || {}),
-        model_url: "/assets/models/toyota_camry/scene.gltf"
-      }
-    };
     const model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", headsetCar.config.model_url);
+    model.setAttribute("gltf-model", "/assets/models/toyota_camry/scene.gltf");
     model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "0 180 0");
+    model.setAttribute("rotation", "0 0 0");  // front-facing for entry
     model.setAttribute("scale", "0.9 0.9 0.9");
-
     let loaded = false;
-    model.addEventListener("model-loaded", () => {
-      loaded = true;
-      fitModelToParkingSlot(model, { lift: 0.06 });
-    });
-
-    model.addEventListener("model-error", () => {
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-      setStatus("Легкая 3D-модель не загрузилась. Показан запасной вариант.");
-    });
-
-    setTimeout(() => {
-      if (loaded) return;
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-      setStatus("3D-модель не загрузилась вовремя. Показан запасной вариант.");
-    }, 15000);
-
+    model.addEventListener("model-loaded", () => { loaded = true; fitModelToParkingSlot(model, { lift: 0.06 }); });
+    model.addEventListener("model-error", () => { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); });
+    setTimeout(() => { if (loaded) return; clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }, 15000);
     return model;
   }
 
   const localConfig = car.config || {};
-  const modelType = localConfig?.model_type || "gltf";
-  const modelUrl = (localConfig?.model_url || "").trim();
-  const objUrl = (localConfig?.obj_url || "").trim();
-  const mtlUrl = (localConfig?.mtl_url || "").trim();
+  const modelType   = localConfig.model_type || "gltf";
+  const modelUrl    = (localConfig.model_url  || "").trim();
+  const objUrl      = (localConfig.obj_url    || "").trim();
+  const mtlUrl      = (localConfig.mtl_url    || "").trim();
+  const initPos     = localConfig.position || "0 0 0";
 
+  // ── OBJ model (BMW M3) ──────────────────────────────────────────────────
   if (modelType === "obj") {
-    if (!objUrl) {
-      return createFallbackModel(car);
-    }
+    if (!objUrl) return createFallbackModel(car);
 
     const model = document.createElement("a-entity");
     model.setAttribute("obj-model", `obj: url(${objUrl}); mtl: url(${mtlUrl})`);
-    model.setAttribute("position", localConfig?.position || "0 0 0");
-    model.setAttribute("rotation", localConfig?.rotation || "0 180 0");
-    model.setAttribute("scale", localConfig?.scale || "1 1 1");
+    model.setAttribute("position", initPos);
+    model.setAttribute("rotation", "0 0 0");  // front-facing for entry; rotated after stop
+    model.setAttribute("scale", localConfig.scale || "1 1 1");
 
+    let loaded = false;
     model.addEventListener("model-loaded", () => {
+      loaded = true;
       fitModelToParkingSlot(model, localConfig);
     });
-
     model.addEventListener("model-error", () => {
+      setStatus("Не удалось загрузить OBJ-модель BMW. Показан запасной вариант.");
       clearModel();
       activeModelEl = createFallbackModel(car);
       carAnchor.appendChild(activeModelEl);
-      setStatus("Не удалось загрузить OBJ-модель. Показан запасной вариант.");
     });
+    // Same timeout guard as GLTF
+    setTimeout(() => {
+      if (loaded) return;
+      setStatus("BMW M3 не загрузился вовремя. Запасной вариант.");
+      clearModel();
+      activeModelEl = createFallbackModel(car);
+      carAnchor.appendChild(activeModelEl);
+    }, 18000);
 
     return model;
   }
 
-  if (!modelUrl) {
-    return createFallbackModel(car);
-  }
+  // ── GLTF / GLB model ────────────────────────────────────────────────────
+  if (!modelUrl) return createFallbackModel(car);
 
   const model = document.createElement("a-entity");
   model.setAttribute("gltf-model", modelUrl);
-  model.setAttribute("position", localConfig?.position || "0 0 0");
-  model.setAttribute("rotation", localConfig?.rotation || "0 180 0");
-  model.setAttribute("scale", localConfig?.scale || "1 1 1");
+  model.setAttribute("position", initPos);
+  model.setAttribute("rotation", "0 0 0");  // front-facing for entry; rotated after stop
+  model.setAttribute("scale", localConfig.scale || "1 1 1");
 
   let loaded = false;
   model.addEventListener("model-loaded", () => {
     loaded = true;
     fitModelToParkingSlot(model, localConfig);
   });
-
   model.addEventListener("model-error", () => {
+    setStatus("Не удалось загрузить 3D-модель. Показан запасной вариант.");
     clearModel();
     activeModelEl = createFallbackModel(car);
     carAnchor.appendChild(activeModelEl);
-    setStatus("Не удалось загрузить 3D-модель. Показан запасной вариант.");
   });
-
   setTimeout(() => {
     if (loaded) return;
+    setStatus("3D-модель не загрузилась вовремя. Показан запасной вариант.");
     clearModel();
     activeModelEl = createFallbackModel(car);
     carAnchor.appendChild(activeModelEl);
-    setStatus("3D-модель не загрузилась вовремя. Показан запасной вариант.");
-  }, HEADSET_VR_MODE ? 22000 : 15000);
+  }, 15000);
 
   return model;
 }
@@ -311,13 +256,30 @@ function cardLabel(car) {
   return `${car.body_type} • ${price}`;
 }
 
+function cardSpecsHtml(car) {
+  const parts = [];
+  if (car.year) parts.push(`<span class="car-spec-tag">${car.year}</span>`);
+  if (car.specs?.engine) parts.push(`<span class="car-spec-tag">${car.specs.engine}</span>`);
+  if (car.specs?.mileage != null) {
+    const mileageVal = car.specs.mileage === 0 || car.specs.mileage === "new"
+      ? "Новый"
+      : `${Number(car.specs.mileage).toLocaleString("ru-RU")} км`;
+    parts.push(`<span class="car-spec-tag">${mileageVal}</span>`);
+  }
+  return parts.length ? `<div class="car-specs-row">${parts.join("")}</div>` : "";
+}
+
 function renderCatalog() {
   const search = searchInputEl.value.trim().toLowerCase();
   const filtered = cars.filter((car) => {
-    if (!search) return true;
-    const brandName = resolveBrandName(car);
-    const text = `${brandName} ${car.model_name || ""}`.toLowerCase();
-    return text.includes(search);
+    if (search) {
+      const brandName = resolveBrandName(car);
+      const text = `${brandName} ${car.model_name || ""}`.toLowerCase();
+      if (!text.includes(search)) return false;
+    }
+    if (filterBrandId && String(car.brand_id) !== String(filterBrandId)) return false;
+    if (filterBodyType && car.body_type !== filterBodyType) return false;
+    return true;
   });
 
   listEl.innerHTML = "";
@@ -334,27 +296,33 @@ function renderCatalog() {
     card.dataset.id = String(car.id);
 
     const brandName = resolveBrandName(car);
+    const isCamry = (car.model_name || "").toLowerCase().includes("camry");
+    const CAMRY_HERO = "/assets/uploads/images/toyota_camry_hero.jpg";
     const imageSrc =
       car.config?.hero_image_url ||
       car.hero_image_url ||
-      "/assets/uploads/images/car_1_demo.jpg";
+      (isCamry ? CAMRY_HERO : "/assets/uploads/images/car_1_demo.jpg");
+    const onerrorAttr = isCamry
+      ? `onerror="this.onerror=null;this.src='${CAMRY_HERO}'"` : "";
     card.innerHTML = `
       <div class="car-media">
-        <img class="car-thumb" src="${imageSrc}" alt="${brandName} ${car.model_name}" />
-        <span class="car-open-pill">3D-осмотр</span>
+        <img class="car-thumb" src="${imageSrc}" alt="${brandName} ${car.model_name}" ${onerrorAttr} />
+        <span class="car-open-pill">Подробнее →</span>
       </div>
       <div class="car-meta">
         <strong>${brandName} ${car.model_name}</strong>
+        ${cardSpecsHtml(car)}
         <span>${cardLabel(car)}</span>
-        <span class="car-open-hint">Нажми, чтобы открыть режим обзора</span>
+        <span class="car-open-hint">Нажми, чтобы открыть карточку автомобиля</span>
       </div>
     `;
 
-    card.addEventListener("click", () => selectCar(car.id));
+    card.addEventListener("click", () => { window.location.href = `/car?id=${car.id}`; });
     listEl.appendChild(card);
   });
 
   setStatus(`Найдено автомобилей: ${filtered.length}`);
+  setupCardReveal();
 }
 
 async function selectCar(carId) {
@@ -392,19 +360,38 @@ async function selectCar(carId) {
 }
 
 function playEntryAnimation() {
-  const idleY = 0.04;
-  const startZ = -10.8; // start near the gate so drive-in is clearly visible
-  const stopZ = 0;
+  const idleY  = 0.04;
+  const startZ = -10.8;  // behind the garage door
+  const stopZ  = 0;
+  const driveDur = 2600;
+  const doorDelay = 420;
 
+  // Position car at starting point facing the door (front = -Z = front-first entry)
   carAnchor.removeAttribute("animation__drivein");
   carAnchor.setAttribute("position", `0 ${idleY} ${startZ}`);
+
+  // Reset any previous rotation on the model itself
+  if (activeModelEl) {
+    activeModelEl.removeAttribute("animation__face");
+    activeModelEl.setAttribute("rotation", "0 0 0");
+  }
 
   const startDrive = () => {
     carAnchor.removeAttribute("animation__drivein");
     carAnchor.setAttribute(
       "animation__drivein",
-      `property: position; to: 0 ${idleY} ${stopZ}; dur: 2600; easing: easeInOutQuad`
+      `property: position; to: 0 ${idleY} ${stopZ}; dur: ${driveDur}; easing: easeInOutQuad`
     );
+
+    // After the car stops, pivot it to face the viewer (180° turn)
+    const pivotDelay = driveDur + 200;
+    setTimeout(() => {
+      if (!activeModelEl) return;
+      activeModelEl.setAttribute(
+        "animation__face",
+        "property: rotation; to: 0 180 0; dur: 700; easing: easeInOutCubic"
+      );
+    }, pivotDelay);
   };
 
   if (!garageDoorEl) {
@@ -412,6 +399,7 @@ function playEntryAnimation() {
     return;
   }
 
+  // Open door
   garageDoorEl.removeAttribute("animation__open");
   garageDoorEl.removeAttribute("animation__close");
   garageDoorEl.setAttribute("position", "0 3.6 -10.95");
@@ -420,15 +408,32 @@ function playEntryAnimation() {
     "property: position; to: 0 6.7 -10.95; dur: 800; easing: easeOutQuad"
   );
 
-  setTimeout(startDrive, 420);
+  setTimeout(startDrive, doorDelay);
 
+  // Close door after car is fully inside
   setTimeout(() => {
     garageDoorEl.removeAttribute("animation__close");
     garageDoorEl.setAttribute(
       "animation__close",
       "property: position; to: 0 3.6 -10.95; dur: 800; easing: easeInQuad"
     );
-  }, 4200);
+  }, doorDelay + driveDur + 900);
+}
+
+// ── Garage boundary clamp ────────────────────────────────────────────────────
+// Keep the camera inside the garage volume so users can't escape into void
+const GARAGE_BOUNDS = { xMin: -8.8, xMax: 8.8, yMin: 0.7, yMax: 6.8, zMin: -10.2, zMax: 9.5 };
+
+function clampCamera() {
+  const rig = document.getElementById("camera-rig");
+  if (!rig) return;
+  const p = rig.getAttribute("position");
+  const x = Math.max(GARAGE_BOUNDS.xMin, Math.min(GARAGE_BOUNDS.xMax, Number(p.x)));
+  const y = Math.max(GARAGE_BOUNDS.yMin, Math.min(GARAGE_BOUNDS.yMax, Number(p.y)));
+  const z = Math.max(GARAGE_BOUNDS.zMin, Math.min(GARAGE_BOUNDS.zMax, Number(p.z)));
+  if (x !== p.x || y !== p.y || z !== p.z) {
+    rig.setAttribute("position", `${x} ${y} ${z}`);
+  }
 }
 
 function setupSpinControl() {
@@ -444,6 +449,7 @@ function setupSpinControl() {
         yaw += 0.22;
         turntable.setAttribute("rotation", `0 ${yaw} 0`);
       }
+      clampCamera();
       requestAnimationFrame(loop);
     };
     loop();
@@ -488,10 +494,8 @@ function setupVrControl() {
 
   enterVrBtn.addEventListener("click", async () => {
     if (HEADSET_VR_MODE) {
-      setStatus("Включен режим VR-шлема: легкая модель + яркая сцена.");
-      setLightVrMode(true);
-
-      // Hard fail-safe against black scene in mobile WebXR.
+      setStatus("Включен режим VR-шлема.");
+      // Brighten sky for mobile WebXR
       sceneEl.setAttribute("fog", "type: linear; near: 999; far: 1000; color: #6aa9ff");
       const sky = sceneEl.querySelector("a-sky");
       if (sky) sky.setAttribute("color", "#60a5fa");
@@ -560,165 +564,68 @@ function setupNavigationControls() {
 
 
 
-function setupVrMovementControls() {
-  const cameraRig = document.getElementById("camera-rig");
-  const leftHand = document.getElementById("left-hand");
-  const rightHand = document.getElementById("right-hand");
-  if (!cameraRig) return;
+// setupVrMovementControls and setupGarageImportedProps removed — no VR controllers
+// or FBX props are used in this build.
 
-  let lastSnapAt = 0;
-  const snapCooldownMs = 220;
-  const snapThreshold = 0.65;
-  const snapStep = 35;
+function setupFilters() {
+  const brandSelect = document.getElementById("filter-brand");
+  const bodyContainer = document.getElementById("filter-body");
+  if (!brandSelect || !bodyContainer) return;
 
-  const applySnapTurn = (xAxis) => {
-    const now = Date.now();
-    if (now - lastSnapAt < snapCooldownMs) return;
+  // Populate brand dropdown
+  const sortedBrands = [...brandsById.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  sortedBrands.forEach(([id, name]) => {
+    const opt = document.createElement("option");
+    opt.value = String(id);
+    opt.textContent = name;
+    brandSelect.appendChild(opt);
+  });
 
-    const direction = xAxis > 0 ? -1 : 1;
-    const rotation = cameraRig.getAttribute("rotation") || { x: 0, y: 0, z: 0 };
-    const nextYaw = Number(rotation.y || 0) + direction * snapStep;
-    cameraRig.setAttribute("rotation", `${Number(rotation.x || 0)} ${nextYaw} ${Number(rotation.z || 0)}`);
-    lastSnapAt = now;
-  };
+  // Populate body type chips
+  const bodyTypes = [...new Set(cars.map((c) => c.body_type).filter(Boolean))].sort();
+  bodyTypes.forEach((type) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "filter-chip";
+    btn.dataset.body = type;
+    btn.textContent = type;
+    bodyContainer.appendChild(btn);
+  });
 
-  const onThumbstick = (event) => {
-    const detail = event.detail || {};
-    const x = Number(detail.x || 0);
-    if (Math.abs(x) < snapThreshold) return;
-    applySnapTurn(x);
-  };
+  brandSelect.addEventListener("change", () => {
+    filterBrandId = brandSelect.value;
+    renderCatalog();
+  });
 
-  [leftHand, rightHand].forEach((hand) => {
-    if (!hand) return;
-    hand.addEventListener("thumbstickmoved", onThumbstick);
-    hand.addEventListener("axismove", onThumbstick);
+  bodyContainer.addEventListener("click", (e) => {
+    const btn = e.target.closest(".filter-chip");
+    if (!btn) return;
+    bodyContainer.querySelectorAll(".filter-chip").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    filterBodyType = btn.dataset.body;
+    renderCatalog();
   });
 }
 
-function setupGarageImportedProps() {
-  const source = document.getElementById("garage-props-source");
-  if (!source || !window.AFRAME?.THREE) return;
+function setupCardReveal() {
+  const cards = listEl.querySelectorAll(".car-item");
+  if (!cards.length) return;
 
-  const keepPattern = /(Rack|rack|Shelf|shelf|Tire_24|Tire|tire|ToolchestExported|ToolChest|Box_38)/;
-  const { Box3, Matrix4, Vector3 } = window.AFRAME.THREE;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.08 }
+  );
 
-  source.addEventListener("model-error", () => {
-    source.removeAttribute("fbx-model");
-    source.setAttribute("visible", "false");
-    setStatus("Часть декора гаража не загрузилась, VR запущен в легком режиме.");
-  });
-
-  setTimeout(() => {
-    if (source.getObject3D("mesh")) return;
-    source.removeAttribute("fbx-model");
-    source.setAttribute("visible", "false");
-  }, 4500);
-
-  source.addEventListener("model-loaded", () => {
-    const root = source.getObject3D("mesh");
-    if (!root) return;
-
-    root.traverse((obj) => {
-      if (!obj.isMesh) return;
-      const name = String(obj.name || "");
-      obj.visible = keepPattern.test(name);
-    });
-
-    const localBounds = new Box3();
-    const tempBox = new Box3();
-    const rel = new Matrix4();
-    const invRootWorld = new Matrix4();
-    let hasGeom = false;
-
-    root.updateWorldMatrix(true, true);
-    invRootWorld.copy(root.matrixWorld).invert();
-
-    root.traverse((obj) => {
-      if (!obj.isMesh || !obj.visible || !obj.geometry) return;
-      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
-      if (!obj.geometry.boundingBox) return;
-
-      rel.multiplyMatrices(invRootWorld, obj.matrixWorld);
-      tempBox.copy(obj.geometry.boundingBox).applyMatrix4(rel);
-      if (!hasGeom) {
-        localBounds.copy(tempBox);
-        hasGeom = true;
-      } else {
-        localBounds.union(tempBox);
-      }
-    });
-
-    if (!hasGeom) return;
-
-    const size = new Vector3();
-    const center = new Vector3();
-    localBounds.getSize(size);
-    localBounds.getCenter(center);
-
-    const targetWidth = 7.8;
-    const targetDepth = 1.35;
-    const targetHeight = 2.4;
-
-    const fitX = size.x > 0 ? targetWidth / size.x : 1;
-    const fitZ = size.z > 0 ? targetDepth / size.z : 1;
-    const fitY = size.y > 0 ? targetHeight / size.y : 1;
-    const fitScale = Math.min(fitX, fitY, fitZ) * 0.92;
-
-    root.scale.setScalar(fitScale);
-    root.position.x -= center.x;
-    root.position.z -= center.z;
-    root.position.y -= localBounds.min.y;
-
-    source.setAttribute("position", "0 0.02 -8.55");
-    source.setAttribute("rotation", "0 180 0");
-  });
-}
-
-
-function setupVrMenu() {
-  const sceneEl = document.getElementById("scene");
-  const cameraRig = document.getElementById("camera-rig");
-  if (!sceneEl || !cameraRig || !vrMenuEl) return;
-
-  const resetView = () => {
-    spinning = false;
-    if (toggleSpinBtn) toggleSpinBtn.textContent = "Включить вращение";
-    yaw = 0;
-    turntable.setAttribute("rotation", "0 0 0");
-    cameraRig.setAttribute("position", "0 1.65 3.4");
-    cameraRig.setAttribute("rotation", "0 0 0");
-  };
-
-  if (vrBtnResetEl) {
-    vrBtnResetEl.addEventListener("click", () => {
-      resetView();
-      setStatus("Вид сброшен.");
-    });
-  }
-
-  if (vrBtnSpinEl) {
-    vrBtnSpinEl.addEventListener("click", () => {
-      spinning = !spinning;
-      if (toggleSpinBtn) toggleSpinBtn.textContent = spinning ? "Остановить вращение" : "Включить вращение";
-      setStatus(spinning ? "Вращение включено." : "Вращение выключено.");
-    });
-  }
-
-  if (vrBtnExitEl) {
-    vrBtnExitEl.addEventListener("click", () => {
-      if (typeof sceneEl.exitVR === "function") {
-        sceneEl.exitVR();
-      }
-    });
-  }
-
-  sceneEl.addEventListener("enter-vr", () => {
-    vrMenuEl.setAttribute("visible", "true");
-  });
-
-  sceneEl.addEventListener("exit-vr", () => {
-    vrMenuEl.setAttribute("visible", "false");
+  cards.forEach((card, i) => {
+    card.style.transitionDelay = `${Math.min(i * 55, 330)}ms`;
+    observer.observe(card);
   });
 }
 
@@ -745,11 +652,17 @@ async function init() {
 
     renderCatalog();
     setupSearch();
+    setupFilters();
     setupSpinControl();
     setupResetView();
     setupNavigationControls();
-    setupGarageImportedProps();
     setupVrControl();
+
+    // Auto-open VR viewer if car_id is in URL (redirect from car detail page)
+    const urlCarId = new URLSearchParams(window.location.search).get("car_id");
+    if (urlCarId) {
+      selectCar(Number(urlCarId));
+    }
   } catch (error) {
     listEl.innerHTML = "";
     setStatus(`Не удалось загрузить каталог: ${error.message}`);

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Garage | Автомобиль</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/car.css" />
+  </head>
+  <body>
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="info-label">Телефон</span>
+        <span class="info-value">+7 (926) 452-35-60</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Часы работы</span>
+        <span class="info-value">Пн - Сб 9:00 - 19:00</span>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>VR Garage</span>
+      </a>
+      <div class="topbar-actions">
+        <a class="top-link" href="/catalog">Каталог</a>
+        <a class="top-link" href="/about">О нас</a>
+        <a class="top-link" href="/faq">FAQ</a>
+        <a class="top-link" href="/contacts">Контакты</a>
+      </div>
+    </header>
+
+    <main class="car-page">
+
+      <!-- Loading state -->
+      <div id="loading" class="loading-state">Загрузка автомобиля</div>
+
+      <!-- Error state -->
+      <div id="error" class="error-state" hidden>
+        <p id="error-msg">Автомобиль не найден.</p>
+        <a href="/catalog">← Вернуться в каталог</a>
+      </div>
+
+      <!-- Car content -->
+      <div id="car-content" hidden>
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Путь навигации">
+          <a href="/">Главная</a>
+          <span>/</span>
+          <a href="/catalog">Каталог</a>
+          <span>/</span>
+          <span id="bc-name">…</span>
+        </nav>
+
+        <!-- Main layout: gallery + info panel -->
+        <div class="car-layout">
+
+          <!-- Gallery -->
+          <div class="gallery">
+            <div class="gallery-main">
+              <img id="gallery-img" src="" alt="" />
+              <div class="gallery-overlay">
+                <span id="car-badge" class="car-badge"></span>
+              </div>
+            </div>
+            <div class="gallery-thumbs" id="gallery-thumbs"></div>
+          </div>
+
+          <!-- Info panel -->
+          <div class="car-info">
+            <p class="car-brand-label" id="car-brand-label"></p>
+            <h1 id="car-name"></h1>
+
+            <div class="car-price-row">
+              <span class="price-label">от</span>
+              <span class="price-value" id="car-price"></span>
+            </div>
+
+            <div class="specs-grid" id="specs-grid"></div>
+
+            <p class="car-desc" id="car-desc"></p>
+
+            <div class="car-actions">
+              <button class="btn-primary" id="btn-vr" type="button">
+                Открыть 3D-осмотр
+              </button>
+              <a class="btn-secondary" href="/catalog">← Назад в каталог</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Trims (shown only when data available) -->
+        <section id="trims-section" class="trims-section" hidden>
+          <h2>Комплектации</h2>
+          <div class="trims-grid" id="trims-grid"></div>
+        </section>
+
+      </div>
+    </main>
+
+    <script src="/static/js/car.js?v=20260520e"></script>
+  </body>
+</html>

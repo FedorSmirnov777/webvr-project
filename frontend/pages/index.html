@@ -6,8 +6,8 @@
     <title>VR Garage</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/site.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/site.css?v=20260520d" />
   </head>
   <body>
     <div class="info-bar">
@@ -35,24 +35,11 @@
     </header>
 
     <main class="welcome-page">
-      <section class="welcome-panel wheel-layout">
-        <div class="welcome-copy">
-          <p class="welcome-tag">Welcome</p>
-          <h1>Добро пожаловать в VR Garage</h1>
-          <p>
-            Мы начинающий проект и ценим каждого пользователя.
-            Точный текст приветствия добавим по твоему финальному варианту.
-          </p>
-          <a class="cta-next" href="/catalog">Далее</a>
-        </div>
-
-        <div class="wheel-box">
-          <div id="wheelInteractive" class="wheel-interactive" role="img" aria-label="Интерактивное колесо"></div>
-          <p class="wheel-hint">Зажми и крути колесо курсором или пальцем</p>
-        </div>
-      </section>
+      <div class="welcome-card">
+        <h1 class="welcome-h1">Добро пожаловать!</h1>
+        <p class="welcome-text">Мы начинающий проект, в котором вы можете рассмотреть автомобиль в деталях.</p>
+        <a class="welcome-btn" href="/catalog">Перейти в каталог</a>
+      </div>
     </main>
-
-    <script src="/static/js/home-wheel.js"></script>
   </body>
 </html>

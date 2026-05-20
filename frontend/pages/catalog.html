@@ -104,6 +104,16 @@
           <h2>Каталог авто</h2>
           <p id="status-line">Загрузка каталога...</p>
         </div>
+
+        <div class="filter-bar" id="filter-bar">
+          <select id="filter-brand" class="filter-select" aria-label="Фильтр по марке">
+            <option value="">Все марки</option>
+          </select>
+          <div class="filter-chips" id="filter-body" role="group" aria-label="Фильтр по типу кузова">
+            <button class="filter-chip active" data-body="" type="button">Все</button>
+          </div>
+        </div>
+
         <div id="car-list" class="car-grid" aria-label="Каталог автомобилей"></div>
       </section>
 
@@ -125,7 +135,7 @@
           embedded
           renderer="colorManagement: true; antialias: true; exposure: 1.75"
           background="color: #0a0f18"
-          fog="type: exponential; color: #0f1728; density: 0.018"
+          fog="type: exponential; color: #06080f; density: 0.022"
           vr-mode-ui="enabled: false"
           xr-mode-ui="enabled: false"
           loading-screen="enabled: false"
@@ -136,82 +146,121 @@
             </a-camera>
           </a-entity>
 
-          <a-entity light="type: ambient; intensity: 1.15; color: #f5f7ff"></a-entity>
-          <a-entity light="type: hemisphere; intensity: 1.25; color: #e8f2ff; groundColor: #334155"></a-entity>
-          <a-entity light="type: directional; intensity: 1.4; color: #f8fafc" position="3 7 4"></a-entity>
-          <a-entity light="type: directional; intensity: 0.9; color: #bfdbfe" position="-4 5 -7"></a-entity>
-          <a-entity light="type: point; intensity: 1.1; color: #fff4d6; distance: 24" position="0 6 -2"></a-entity>
-          <a-entity light="type: point; intensity: 0.85; color: #cfe4ff; distance: 20" position="0 3 -6"></a-entity>
-          <a-sky color="#1e3a8a"></a-sky>
+          <!-- Ambient base (low — drama comes from rim) -->
+          <a-entity light="type: ambient; intensity: 0.32; color: #c8d8ff"></a-entity>
 
+          <!-- Key fill light from front-top -->
+          <a-entity light="type: directional; intensity: 0.65; color: #edf2ff" position="2 8 6"></a-entity>
+
+          <!-- Soft secondary fill from left -->
+          <a-entity light="type: directional; intensity: 0.28; color: #d6e4ff" position="-5 4 2"></a-entity>
+
+          <!-- Rim-light — main, behind car, strong blue -->
+          <a-entity light="type: point; intensity: 2.2; color: #3a6fff; distance: 11; decay: 1.8" position="0 2.0 -6.5"></a-entity>
+
+          <!-- Rim-light — left side accent -->
+          <a-entity light="type: point; intensity: 0.9; color: #2048cc; distance: 9; decay: 2.0" position="-4.0 1.4 -5.5"></a-entity>
+
+          <!-- Rim-light — right side accent -->
+          <a-entity light="type: point; intensity: 0.9; color: #2048cc; distance: 9; decay: 2.0" position="4.0 1.4 -5.5"></a-entity>
+
+          <!-- Ceiling strip lights (reduced) -->
+          <a-entity light="type: point; intensity: 0.5; color: #e0eaff; distance: 18" position="0 6.8 -3.5"></a-entity>
+          <a-entity light="type: point; intensity: 0.4; color: #e0eaff; distance: 16" position="0 6.8 -8.0"></a-entity>
+
+          <a-sky color="#06080f"></a-sky>
+
+          <!-- Glossy dark floor -->
           <a-plane
             class="teleportable"
-           
-           
             rotation="-90 0 0"
             width="20"
             height="22"
-            color="#1e293b"
-            material="roughness: 0.9; metalness: 0.05"
+            color="#070c14"
+            material="roughness: 0.04; metalness: 0.58"
           ></a-plane>
+
+          <!-- Cyclorama: curved transition floor → back wall -->
+          <a-cylinder
+            position="0 0 -10.72"
+            rotation="0 0 90"
+            radius="0.28"
+            height="20"
+            color="#060b12"
+            material="roughness: 0.04; metalness: 0.55"
+            segments-radial="28"
+          ></a-cylinder>
+
+          <!-- Cyclorama: curved transition floor → left wall -->
+          <a-cylinder
+            position="-9.72 0 0"
+            rotation="90 0 0"
+            radius="0.28"
+            height="22"
+            color="#060b12"
+            material="roughness: 0.04; metalness: 0.55"
+            segments-radial="28"
+          ></a-cylinder>
+
+          <!-- Cyclorama: curved transition floor → right wall -->
+          <a-cylinder
+            position="9.72 0 0"
+            rotation="90 0 0"
+            radius="0.28"
+            height="22"
+            color="#060b12"
+            material="roughness: 0.04; metalness: 0.55"
+            segments-radial="28"
+          ></a-cylinder>
+          <!-- Ceiling -->
           <a-plane
-           
-           
             rotation="90 0 0"
             position="0 8 0"
             width="20"
             height="22"
-            color="#334155"
-            material="roughness: 0.88; metalness: 0.08"
+            color="#0d1520"
+            material="roughness: 0.9; metalness: 0.06"
           ></a-plane>
 
+          <!-- Back wall panels -->
           <a-plane
             position="-6.875 4 -11"
             width="6.25"
             height="7"
-           
-           
-            color="#3f4c5f"
-            material="roughness: 0.9; metalness: 0.06"
+            color="#0e1828"
+            material="roughness: 0.88; metalness: 0.08"
           ></a-plane>
           <a-plane
             position="6.875 4 -11"
             width="6.25"
             height="7"
-           
-           
-            color="#3f4c5f"
-            material="roughness: 0.9; metalness: 0.06"
+            color="#0e1828"
+            material="roughness: 0.88; metalness: 0.08"
           ></a-plane>
           <a-plane
             position="0 6.6 -11"
             width="7.5"
             height="0.8"
-           
-           
-            color="#475569"
+            color="#131f30"
             material="roughness: 0.88; metalness: 0.08"
           ></a-plane>
 
+          <!-- Side walls -->
           <a-plane
             position="-10 4 0"
             rotation="0 90 0"
             width="22"
             height="7"
-           
-           
-            color="#1f2937"
-            material="roughness: 0.92; metalness: 0.04"
+            color="#0b1220"
+            material="roughness: 0.9; metalness: 0.05"
           ></a-plane>
           <a-plane
             position="10 4 0"
             rotation="0 -90 0"
             width="22"
             height="7"
-           
-           
-            color="#1f2937"
-            material="roughness: 0.92; metalness: 0.04"
+            color="#0b1220"
+            material="roughness: 0.9; metalness: 0.05"
           ></a-plane>
 
           <a-box id="garage-door" position="0 3.6 -10.95" width="7.5" height="5.2" depth="0.08" color="#7b8696" material="roughness: 0.58; metalness: 0.5"></a-box>
@@ -232,19 +281,21 @@
 
 
           <a-entity id="turntable" position="0 0 -2">
+            <!-- Outer platform — glossy dark metal -->
             <a-cylinder
               position="0 0.07 0"
               radius="1.78"
               height="0.14"
-              color="#0f172a"
-              material="metalness: 0.35; roughness: 0.38"
+              color="#060a12"
+              material="metalness: 0.65; roughness: 0.06"
             ></a-cylinder>
+            <!-- Inner ring — electric blue glow -->
             <a-cylinder
               position="0 0.1 0"
               radius="1.46"
               height="0.04"
-              color="#2563eb"
-              material="emissive: #1d4ed8; emissiveIntensity: 0.25; metalness: 0.25; roughness: 0.45"
+              color="#1a3aff"
+              material="emissive: #1a3aff; emissiveIntensity: 0.55; metalness: 0.2; roughness: 0.35"
             ></a-cylinder>
             <a-entity id="car-anchor" position="0 0.35 0"></a-entity>
           </a-entity>
@@ -252,7 +303,7 @@
       </section>
     </main>
 
-    <script src="/static/js/catalog.js?v=20260511c"></script>
+    <script src="/static/js/catalog.js?v=20260520f"></script>
     <script src="/static/js/auth-state.js?v=20260422a"></script>
   </body>
 </html>

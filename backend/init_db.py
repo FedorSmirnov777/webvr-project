@@ -29,7 +29,7 @@ CARS = [
         "range_km": 850,
         "acceleration_sec": 7.2,
         "model_url": "assets/models/toyota_camry_2024.glb",
-        "hero_image_url": "",
+        "hero_image_url": "/assets/uploads/images/toyota_camry_hero.jpg",
         "base_price": 35500,
         "fallback_color": "#2563eb",
         "fallback_scale": "1.7 0.78 3.4",
@@ -192,6 +192,18 @@ def _ensure_backward_compatible_columns(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE cars ADD COLUMN base_price REAL")
     if "published" not in columns:
         conn.execute("ALTER TABLE cars ADD COLUMN published INTEGER NOT NULL DEFAULT 0")
+    if "power_hp" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN power_hp INTEGER NOT NULL DEFAULT 0")
+    if "drivetrain" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN drivetrain TEXT NOT NULL DEFAULT ''")
+    if "range_km" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN range_km INTEGER NOT NULL DEFAULT 0")
+    if "acceleration_sec" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN acceleration_sec REAL NOT NULL DEFAULT 0")
+    if "fallback_color" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN fallback_color TEXT NOT NULL DEFAULT '#2563eb'")
+    if "fallback_scale" not in columns:
+        conn.execute("ALTER TABLE cars ADD COLUMN fallback_scale TEXT NOT NULL DEFAULT '1.7 0.78 3.4'")
 
 
 def init_database(db_path: Path = DEFAULT_DB_PATH) -> None:
