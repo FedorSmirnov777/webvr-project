@@ -89,13 +89,18 @@ function switchImage(index) {
 /* ── Render ── */
 function renderCar(car, brandName) {
   /* Breadcrumb & title */
-  const fullName = `${brandName} ${car.model_name}`.trim();
+  const isCamry = (car.model_name || "").toLowerCase().includes("camry") ||
+                  (car.model_name || "").toLowerCase().includes("avalon");
+  const displayModelName = isCamry ? "Avalon 2023" : car.model_name;
+  const fullName = `${brandName} ${displayModelName}`.trim();
   document.getElementById("bc-name").textContent = fullName;
-  document.title = `${fullName} ${car.year} | VR Garage`;
+  document.title = `${fullName} | VR Garage`;
 
   /* Header */
   document.getElementById("car-brand-label").textContent = brandName.toUpperCase();
-  document.getElementById("car-name").textContent = `${car.model_name} ${car.year || ""}`.trim();
+  document.getElementById("car-name").textContent = isCamry
+    ? displayModelName
+    : `${displayModelName} ${car.year || ""}`.trim();
 
   /* Price */
   const priceEl = document.getElementById("car-price");
@@ -113,13 +118,11 @@ function renderCar(car, brandName) {
   document.getElementById("car-badge").textContent = parts.join(" · ");
 
   /* Gallery images — hero image first, then extra_images from API */
-  const isCamry = (car.model_name || "").toLowerCase().includes("camry");
-  const CAMRY_HERO = "/assets/uploads/images/toyota_camry_hero.jpg";
-  const CAMRY_PHOTO2 = "/assets/uploads/images/toyota_camry_2.webp";
+  const CAMRY_HERO  = "/assets/uploads/images/tayota_avalon/toyota_avalon_hero.jpg";
+  const CAMRY_PHOTO2 = "/assets/uploads/images/tayota_avalon/tayota_avalon_2.jpg";
 
   let images = [];
   if (isCamry) {
-    // For Camry: always use our two photos, ignore whatever DB says
     images = [CAMRY_HERO, CAMRY_PHOTO2];
   } else {
     const heroUrl = car.config?.hero_image_url || car.hero_image_url || "";

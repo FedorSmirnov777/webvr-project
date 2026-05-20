@@ -160,12 +160,61 @@ function fitModelToParkingSlot(model, localConfig = {}) {
 }
 
 function createModelEntity(car) {
+  const isCamry = (car.model_name || "").toLowerCase().includes("camry") ||
+                  (car.model_name || "").toLowerCase().includes("avalon");
+  const isBmwM3 = (car.model_name || "").toLowerCase().includes("m3") ||
+                  ((car.model_name || "").toLowerCase().includes("bmw") && (car.brand_name || "").toLowerCase().includes("bmw"));
+
+  // Toyota Camry — new GLB model
+  if (isCamry) {
+    const model = document.createElement("a-entity");
+    model.setAttribute("gltf-model", "/assets/models/toyota_camry_new.glb/source/FINAL_MODEL_23/2023_toyota_avalon_hybrid_limited.glb");
+    model.setAttribute("position", "0 0 0");
+    model.setAttribute("rotation", "0 0 0");
+    let loaded = false;
+    model.addEventListener("model-loaded", () => {
+      loaded = true;
+      fitModelToParkingSlot(model, { lift: 0.04 });
+    });
+    model.addEventListener("model-error", () => {
+      clearModel();
+      activeModelEl = createFallbackModel(car);
+      carAnchor.appendChild(activeModelEl);
+    });
+    setTimeout(() => {
+      if (!loaded) { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }
+    }, 20000);
+    return model;
+  }
+
+  // BMW M3 — new GLB model
+  if (isBmwM3) {
+    const model = document.createElement("a-entity");
+    model.setAttribute("gltf-model", "/assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb");
+    model.setAttribute("position", "0 0 0");
+    model.setAttribute("rotation", "0 0 0");
+    let loaded = false;
+    model.addEventListener("model-loaded", () => {
+      loaded = true;
+      fitModelToParkingSlot(model, { lift: 0.04 });
+    });
+    model.addEventListener("model-error", () => {
+      clearModel();
+      activeModelEl = createFallbackModel(car);
+      carAnchor.appendChild(activeModelEl);
+    });
+    setTimeout(() => {
+      if (!loaded) { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }
+    }, 20000);
+    return model;
+  }
+
   // In headset mode always use the lightweight Toyota GLTF
   if (HEADSET_VR_MODE) {
     const model = document.createElement("a-entity");
     model.setAttribute("gltf-model", "/assets/models/toyota_camry/scene.gltf");
     model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "0 0 0");  // front-facing for entry
+    model.setAttribute("rotation", "0 180 0");
     model.setAttribute("scale", "0.9 0.9 0.9");
     let loaded = false;
     model.addEventListener("model-loaded", () => { loaded = true; fitModelToParkingSlot(model, { lift: 0.06 }); });
@@ -296,21 +345,23 @@ function renderCatalog() {
     card.dataset.id = String(car.id);
 
     const brandName = resolveBrandName(car);
-    const isCamry = (car.model_name || "").toLowerCase().includes("camry");
-    const CAMRY_HERO = "/assets/uploads/images/toyota_camry_hero.jpg";
+    const isToyota = (car.model_name || "").toLowerCase().includes("camry") ||
+                     (car.model_name || "").toLowerCase().includes("avalon");
+    const displayModelName = isToyota ? "Avalon 2023" : car.model_name;
+    const TOYOTA_HERO = "/assets/uploads/images/tayota_avalon/toyota_avalon_hero.jpg";
     const imageSrc =
       car.config?.hero_image_url ||
       car.hero_image_url ||
-      (isCamry ? CAMRY_HERO : "/assets/uploads/images/car_1_demo.jpg");
-    const onerrorAttr = isCamry
-      ? `onerror="this.onerror=null;this.src='${CAMRY_HERO}'"` : "";
+      (isToyota ? TOYOTA_HERO : "/assets/uploads/images/car_1_demo.jpg");
+    const onerrorAttr = isToyota
+      ? `onerror="this.onerror=null;this.src='${TOYOTA_HERO}'"` : "";
     card.innerHTML = `
       <div class="car-media">
-        <img class="car-thumb" src="${imageSrc}" alt="${brandName} ${car.model_name}" ${onerrorAttr} />
+        <img class="car-thumb" src="${imageSrc}" alt="${brandName} ${displayModelName}" ${onerrorAttr} />
         <span class="car-open-pill">Подробнее →</span>
       </div>
       <div class="car-meta">
-        <strong>${brandName} ${car.model_name}</strong>
+        <strong>${brandName} ${displayModelName}</strong>
         ${cardSpecsHtml(car)}
         <span>${cardLabel(car)}</span>
         <span class="car-open-hint">Нажми, чтобы открыть карточку автомобиля</span>
@@ -346,9 +397,15 @@ async function selectCar(carId) {
   });
 
   const brandName = resolveBrandName(activeCar);
-  const name = `${brandName} ${activeCar.model_name}`;
+  const isActiveToyota = (activeCar.model_name || "").toLowerCase().includes("camry") ||
+                         (activeCar.model_name || "").toLowerCase().includes("avalon");
+  const displayActiveName = isActiveToyota ? "Avalon 2023" : activeCar.model_name;
+  const name = `${brandName} ${displayActiveName}`;
   titleEl.textContent = name;
-  descEl.textContent = activeCar.description || "Описание появится позже.";
+  const activeDesc = isActiveToyota
+    ? "Toyota Avalon Hybrid 2023 — флагманский полноразмерный седан с гибридной установкой. Сочетает премиальный комфорт, тихий салон и экономичность гибрида."
+    : (activeCar.description || "Описание появится позже.");
+  descEl.textContent = activeDesc;
 
   clearModel();
   activeModelEl = createModelEntity(activeCar);
@@ -436,13 +493,9 @@ function clampCamera() {
   }
 }
 
-function setupSpinControl() {
-  toggleSpinBtn.addEventListener("click", () => {
-    spinning = !spinning;
-    toggleSpinBtn.textContent = spinning ? "Остановить вращение" : "Включить вращение";
-  });
-
+function startRenderLoop() {
   const sceneEl = document.getElementById("scene");
+  if (!sceneEl) return;
   sceneEl.addEventListener("renderstart", () => {
     const loop = () => {
       if (spinning) {
@@ -453,18 +506,6 @@ function setupSpinControl() {
       requestAnimationFrame(loop);
     };
     loop();
-  });
-}
-
-function setupResetView() {
-  resetViewBtn.addEventListener("click", () => {
-    spinning = false;
-    toggleSpinBtn.textContent = "Включить вращение";
-    yaw = 0;
-    turntable.setAttribute("rotation", "0 0 0");
-    const cameraRig = document.getElementById("camera-rig");
-    cameraRig.setAttribute("position", "0 1.65 3.4");
-    cameraRig.setAttribute("rotation", "0 0 0");
   });
 }
 
@@ -635,6 +676,7 @@ function setupSearch() {
   });
 }
 
+
 async function init() {
   try {
     const [brands, payload] = await Promise.all([
@@ -653,8 +695,7 @@ async function init() {
     renderCatalog();
     setupSearch();
     setupFilters();
-    setupSpinControl();
-    setupResetView();
+    startRenderLoop();
     setupNavigationControls();
     setupVrControl();
 

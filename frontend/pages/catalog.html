@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/catalog.css?v=20260422h" />
+    <link rel="stylesheet" href="/static/css/catalog.css?v=20260520p" />
     <script src="/static/js/vendor/aframe.min.js"></script>
     <script src="/static/js/vendor/aframe-extras.min.js"></script>
     <script src="/static/js/vendor/aframe-teleport-controls.min.js"></script>
@@ -125,11 +125,13 @@
             <p id="car-description">Выбери автомобиль из каталога выше.</p>
           </div>
           <div class="viewer-actions">
-            <button id="toggle-spin" type="button">Включить вращение</button>
-            <button id="reset-view" type="button">Сбросить вид</button>
             <button id="enter-vr" type="button">Войти в VR</button>
-                      </div>
+          </div>
         </div>
+
+        <!-- Scene wrapper -->
+        <div class="scene-wrap">
+
         <a-scene
           id="scene"
           embedded
@@ -300,10 +302,11 @@
             <a-entity id="car-anchor" position="0 0.35 0"></a-entity>
           </a-entity>
         </a-scene>
+        </div><!-- /scene-wrap -->
       </section>
     </main>
 
-    <script src="/static/js/catalog.js?v=20260520f"></script>
+    <script src="/static/js/catalog.js?v=20260520p"></script>
     <script src="/static/js/auth-state.js?v=20260422a"></script>
   </body>
 </html>

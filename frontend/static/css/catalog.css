@@ -705,3 +705,10 @@ a-scene {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* ── Scene wrap ── */
+.scene-wrap {
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+
