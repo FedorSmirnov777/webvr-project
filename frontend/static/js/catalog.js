@@ -159,137 +159,48 @@ function fitModelToParkingSlot(model, localConfig = {}) {
   return true;
 }
 
+const MODEL_PATHS = {
+  toyota:   "/assets/models/toyota_camry_new.glb/source/FINAL_MODEL_23/2023_toyota_avalon_hybrid_limited.glb",
+  bmw_m3:   "/assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb",
+  mercedes: "/assets/models/mercedes-190e-evo-1982-3d-model-free/Mercedes%20e190/mercedese190evo.glb",
+  porsche:  "/assets/models/1989_porsche_911_964_carrera_4_safe.glb",
+};
+
+function resolveModelPath(car) {
+  const name = (car.model_name || "").toLowerCase();
+  if (name.includes("avalon") || name.includes("camry")) return MODEL_PATHS.toyota;
+  if (name.includes("m3"))                               return MODEL_PATHS.bmw_m3;
+  if (name.includes("190"))                              return MODEL_PATHS.mercedes;
+  if (name.includes("964") || name.includes("911"))     return MODEL_PATHS.porsche;
+  return null;
+}
+
 function createModelEntity(car) {
-  const isCamry = (car.model_name || "").toLowerCase().includes("camry") ||
-                  (car.model_name || "").toLowerCase().includes("avalon");
-  const isBmwM3 = (car.model_name || "").toLowerCase().includes("m3") ||
-                  ((car.model_name || "").toLowerCase().includes("bmw") && (car.brand_name || "").toLowerCase().includes("bmw"));
-
-  // Toyota Camry — new GLB model
-  if (isCamry) {
-    const model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", "/assets/models/toyota_camry_new.glb/source/FINAL_MODEL_23/2023_toyota_avalon_hybrid_limited.glb");
-    model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "0 0 0");
-    let loaded = false;
-    model.addEventListener("model-loaded", () => {
-      loaded = true;
-      fitModelToParkingSlot(model, { lift: 0.04 });
-    });
-    model.addEventListener("model-error", () => {
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-    });
-    setTimeout(() => {
-      if (!loaded) { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }
-    }, 20000);
-    return model;
-  }
-
-  // BMW M3 — new GLB model
-  if (isBmwM3) {
-    const model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", "/assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb");
-    model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "0 0 0");
-    let loaded = false;
-    model.addEventListener("model-loaded", () => {
-      loaded = true;
-      fitModelToParkingSlot(model, { lift: 0.04 });
-    });
-    model.addEventListener("model-error", () => {
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-    });
-    setTimeout(() => {
-      if (!loaded) { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }
-    }, 20000);
-    return model;
-  }
-
-  // In headset mode always use the lightweight Toyota GLTF
-  if (HEADSET_VR_MODE) {
-    const model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", "/assets/models/toyota_camry/scene.gltf");
-    model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "0 180 0");
-    model.setAttribute("scale", "0.9 0.9 0.9");
-    let loaded = false;
-    model.addEventListener("model-loaded", () => { loaded = true; fitModelToParkingSlot(model, { lift: 0.06 }); });
-    model.addEventListener("model-error", () => { clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); });
-    setTimeout(() => { if (loaded) return; clearModel(); activeModelEl = createFallbackModel(car); carAnchor.appendChild(activeModelEl); }, 15000);
-    return model;
-  }
-
-  const localConfig = car.config || {};
-  const modelType   = localConfig.model_type || "gltf";
-  const modelUrl    = (localConfig.model_url  || "").trim();
-  const objUrl      = (localConfig.obj_url    || "").trim();
-  const mtlUrl      = (localConfig.mtl_url    || "").trim();
-  const initPos     = localConfig.position || "0 0 0";
-
-  // ── OBJ model (BMW M3) ──────────────────────────────────────────────────
-  if (modelType === "obj") {
-    if (!objUrl) return createFallbackModel(car);
-
-    const model = document.createElement("a-entity");
-    model.setAttribute("obj-model", `obj: url(${objUrl}); mtl: url(${mtlUrl})`);
-    model.setAttribute("position", initPos);
-    model.setAttribute("rotation", "0 0 0");  // front-facing for entry; rotated after stop
-    model.setAttribute("scale", localConfig.scale || "1 1 1");
-
-    let loaded = false;
-    model.addEventListener("model-loaded", () => {
-      loaded = true;
-      fitModelToParkingSlot(model, localConfig);
-    });
-    model.addEventListener("model-error", () => {
-      setStatus("Не удалось загрузить OBJ-модель BMW. Показан запасной вариант.");
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-    });
-    // Same timeout guard as GLTF
-    setTimeout(() => {
-      if (loaded) return;
-      setStatus("BMW M3 не загрузился вовремя. Запасной вариант.");
-      clearModel();
-      activeModelEl = createFallbackModel(car);
-      carAnchor.appendChild(activeModelEl);
-    }, 18000);
-
-    return model;
-  }
-
-  // ── GLTF / GLB model ────────────────────────────────────────────────────
-  if (!modelUrl) return createFallbackModel(car);
+  const glbPath = resolveModelPath(car);
+  if (!glbPath) return createFallbackModel(car);
 
   const model = document.createElement("a-entity");
-  model.setAttribute("gltf-model", modelUrl);
-  model.setAttribute("position", initPos);
-  model.setAttribute("rotation", "0 0 0");  // front-facing for entry; rotated after stop
-  model.setAttribute("scale", localConfig.scale || "1 1 1");
+  model.setAttribute("gltf-model", glbPath);
+  model.setAttribute("position", "0 0 0");
+  model.setAttribute("rotation", "0 0 0");
 
   let loaded = false;
   model.addEventListener("model-loaded", () => {
     loaded = true;
-    fitModelToParkingSlot(model, localConfig);
+    fitModelToParkingSlot(model, { lift: 0.04 });
   });
   model.addEventListener("model-error", () => {
-    setStatus("Не удалось загрузить 3D-модель. Показан запасной вариант.");
     clearModel();
     activeModelEl = createFallbackModel(car);
     carAnchor.appendChild(activeModelEl);
   });
   setTimeout(() => {
-    if (loaded) return;
-    setStatus("3D-модель не загрузилась вовремя. Показан запасной вариант.");
-    clearModel();
-    activeModelEl = createFallbackModel(car);
-    carAnchor.appendChild(activeModelEl);
-  }, 15000);
+    if (!loaded) {
+      clearModel();
+      activeModelEl = createFallbackModel(car);
+      carAnchor.appendChild(activeModelEl);
+    }
+  }, 20000);
 
   return model;
 }

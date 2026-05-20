@@ -11,8 +11,6 @@ BRANDS = [
     ("Toyota", "toyota", "Japan"),
     ("BMW", "bmw", "Germany"),
     ("Mercedes-Benz", "mercedes-benz", "Germany"),
-    ("Audi", "audi", "Germany"),
-    ("Tesla", "tesla", "USA"),
     ("Porsche", "porsche", "Germany"),
 ]
 
@@ -37,85 +35,51 @@ CARS = [
     },
     {
         "brand_slug": "bmw",
-        "model_name": "X5",
-        "year": 2024,
-        "body_type": "SUV",
-        "description": "Премиальный кроссовер с полным приводом и продвинутой электроникой.",
-        "power_hp": 340,
-        "drivetrain": "AWD",
-        "range_km": 760,
-        "acceleration_sec": 5.5,
-        "model_url": "assets/models/bmw_x5_2024.glb",
+        "model_name": "M3",
+        "year": 2015,
+        "body_type": "Sedan",
+        "description": "BMW M3 (F80) 2015 — спортивный седан с рядным шестицилиндровым двигателем мощностью 431 л.с. и задним приводом.",
+        "power_hp": 431,
+        "drivetrain": "RWD",
+        "range_km": 600,
+        "acceleration_sec": 4.1,
+        "model_url": "assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb",
         "hero_image_url": "",
-        "base_price": 74200,
+        "base_price": 67000,
         "fallback_color": "#111827",
-        "fallback_scale": "1.75 0.82 3.5",
+        "fallback_scale": "1.75 0.75 3.5",
         "published": 1,
     },
     {
         "brand_slug": "mercedes-benz",
-        "model_name": "C-Class",
-        "year": 2024,
+        "model_name": "190E Evo",
+        "year": 1982,
         "body_type": "Sedan",
-        "description": "Седан бизнес-класса с акцентом на комфорт и технологии.",
-        "power_hp": 258,
+        "description": "Mercedes-Benz 190E Evo 1982 — классический заднеприводный седан с характерным стилем эпохи и надёжной механической базой.",
+        "power_hp": 197,
         "drivetrain": "RWD",
-        "range_km": 790,
-        "acceleration_sec": 6.0,
-        "model_url": "assets/models/mercedes_c_class_2024.glb",
+        "range_km": 700,
+        "acceleration_sec": 7.2,
+        "model_url": "assets/models/mercedes-190e-evo-1982-3d-model-free/Mercedes e190/mercedese190evo.glb",
         "hero_image_url": "",
-        "base_price": 61600,
+        "base_price": 35000,
         "fallback_color": "#9ca3af",
         "fallback_scale": "1.68 0.76 3.3",
         "published": 1,
     },
     {
-        "brand_slug": "audi",
-        "model_name": "A6",
-        "year": 2024,
-        "body_type": "Sedan",
-        "description": "Технологичный представительский седан с фирменным quattro.",
-        "power_hp": 265,
-        "drivetrain": "AWD",
-        "range_km": 780,
-        "acceleration_sec": 5.9,
-        "model_url": "assets/models/audi_a6_2024.glb",
-        "hero_image_url": "",
-        "base_price": 65800,
-        "fallback_color": "#0f766e",
-        "fallback_scale": "1.7 0.76 3.35",
-        "published": 1,
-    },
-    {
-        "brand_slug": "tesla",
-        "model_name": "Model 3",
-        "year": 2024,
-        "body_type": "EV Sedan",
-        "description": "Электроседан с быстрым откликом и современной цифровой платформой.",
-        "power_hp": 351,
-        "drivetrain": "AWD",
-        "range_km": 629,
-        "acceleration_sec": 4.4,
-        "model_url": "assets/models/tesla_model_3_2024.glb",
-        "hero_image_url": "",
-        "base_price": 50990,
-        "fallback_color": "#dc2626",
-        "fallback_scale": "1.62 0.72 3.2",
-        "published": 1,
-    },
-    {
         "brand_slug": "porsche",
-        "model_name": "911 Carrera",
-        "year": 2024,
+        "model_name": "911 Carrera 964",
+        "year": 1989,
         "body_type": "Coupe",
-        "description": "Культовое спортивное купе с динамикой и точной управляемостью.",
-        "power_hp": 385,
-        "drivetrain": "RWD",
+        "description": "Porsche 911 Carrera 4 (964) 1989 — купе с воздушным охлаждением и симметричным полным приводом. Один из последних классических 911.",
+        "power_hp": 250,
+        "drivetrain": "AWD",
         "range_km": 640,
-        "acceleration_sec": 4.2,
-        "model_url": "assets/models/porsche_911_carrera_2024.glb",
+        "acceleration_sec": 5.7,
+        "model_url": "assets/models/1989_porsche_911_964_carrera_4_safe.glb",
         "hero_image_url": "",
-        "base_price": 124500,
+        "base_price": 89000,
         "fallback_color": "#f59e0b",
         "fallback_scale": "1.55 0.66 3.0",
         "published": 1,
@@ -228,6 +192,20 @@ def init_database(db_path: Path = DEFAULT_DB_PATH) -> None:
         brand_id_by_slug = {
             row[1]: row[0] for row in conn.execute("SELECT id, slug FROM brands")
         }
+
+        # Remove cars that are no longer in the seed list
+        active_slugs = [car["brand_slug"] for car in CARS]
+        active_brand_ids = [brand_id_by_slug[slug] for slug in active_slugs]
+        active_model_names = [car["model_name"] for car in CARS]
+        all_cars_in_db = conn.execute("SELECT id, brand_id, model_name FROM cars").fetchall()
+        for row in all_cars_in_db:
+            car_id, brand_id, model_name = row
+            is_active = any(
+                brand_id == brand_id_by_slug.get(car["brand_slug"]) and model_name == car["model_name"]
+                for car in CARS
+            )
+            if not is_active:
+                conn.execute("DELETE FROM cars WHERE id = ?", (car_id,))
 
         for car in CARS:
             conn.execute(
