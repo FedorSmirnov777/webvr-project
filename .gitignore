@@ -1,4 +1,15 @@
 .venv/
 .DS_Store
-assets/models/
 data/
+
+# Исходники моделей — не нужны в вебе
+*.fbx
+*.zip
+*.obj
+*.mtl
+
+# Неиспользуемые папки с моделями
+assets/models/car-garage/
+assets/models/bmw-m3-sedan-2013/
+assets/models/bmw_m3_sedan_2013/
+assets/models/mercedes-190e-evo-1982-3d-model-free/
