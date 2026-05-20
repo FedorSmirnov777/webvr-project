@@ -236,8 +236,10 @@ def get_car(car_id: int, db: Session = Depends(get_db), user: User | None = Depe
     )
     assets = db.query(CarAsset).filter(CarAsset.car_id == car.id).order_by(CarAsset.created_at.desc()).all()
 
-    hero_image_url = next((asset.public_url for asset in assets if asset.kind == "image"), None)
-    model_url = next((asset.public_url for asset in assets if asset.kind == "model_3d"), None)
+    image_assets   = sorted([a for a in assets if a.kind == "image"], key=lambda a: a.version or 0)
+    hero_image_url = image_assets[0].public_url if image_assets else None
+    extra_images   = [a.public_url for a in image_assets[1:]]
+    model_url      = next((a.public_url for a in assets if a.kind == "model_3d"), None)
 
     return {
         "id": car.id,
@@ -253,6 +255,7 @@ def get_car(car_id: int, db: Session = Depends(get_db), user: User | None = Depe
             "hero_image_url": hero_image_url,
             "model_url": model_url,
         },
+        "extra_images": extra_images,
         "published": car.published,
         "created_at": car.created_at,
         "updated_at": car.updated_at,

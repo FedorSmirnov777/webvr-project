@@ -103,6 +103,16 @@ def faq_html() -> FileResponse:
     return FileResponse(PAGES_DIR / "faq.html")
 
 
+@app.get("/car")
+def car_page() -> FileResponse:
+    return FileResponse(PAGES_DIR / "car.html")
+
+
+@app.get("/car.html")
+def car_html() -> FileResponse:
+    return FileResponse(PAGES_DIR / "car.html")
+
+
 @app.get("/vr-test")
 def vr_test_page() -> FileResponse:
     return FileResponse(PAGES_DIR / "vr-test.html")

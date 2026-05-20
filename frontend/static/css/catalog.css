@@ -340,6 +340,68 @@ body {
   color: var(--muted);
 }
 
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0 4px;
+}
+
+.filter-select {
+  height: 38px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
+  padding: 0 16px;
+  font-family: "Manrope", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23374151' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.filter-select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 1px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.filter-chip {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filter-chip:hover {
+  border-color: rgba(0, 0, 0, 0.55);
+  background: #f3f3f3;
+}
+
+.filter-chip.active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
 .car-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -361,7 +423,14 @@ body {
   text-align: left;
   color: inherit;
   padding: 0;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.45s ease, translate 0.45s ease;
+  opacity: 0;
+  translate: 0 20px;
+}
+
+.car-item.visible {
+  opacity: 1;
+  translate: 0 0;
 }
 
 .car-item:hover {
@@ -420,6 +489,26 @@ body {
 .car-meta span {
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.car-specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 2px 0;
+}
+
+.car-spec-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #f0f2f5;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.01em;
 }
 
 .car-open-hint {
