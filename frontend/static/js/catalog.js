@@ -162,7 +162,7 @@ function fitModelToParkingSlot(model, localConfig = {}) {
 const MODEL_PATHS = {
   toyota:   "/assets/models/toyota_camry_new.glb/source/FINAL_MODEL_23/2023_toyota_avalon_hybrid_limited.glb",
   bmw_m3:   "/assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb",
-  mercedes: "/assets/models/mercedes-190e-evo-1982-3d-model-free/Mercedes%20e190/mercedese190evo.glb",
+  mercedes: "/assets/models/mercedes_190e_evo_1982.glb",
   porsche:  "/assets/models/1989_porsche_911_964_carrera_4_safe.glb",
 };
 

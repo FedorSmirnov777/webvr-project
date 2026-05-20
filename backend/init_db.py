@@ -60,7 +60,7 @@ CARS = [
         "drivetrain": "RWD",
         "range_km": 700,
         "acceleration_sec": 7.2,
-        "model_url": "assets/models/mercedes-190e-evo-1982-3d-model-free/Mercedes e190/mercedese190evo.glb",
+        "model_url": "assets/models/mercedes_190e_evo_1982.glb",
         "hero_image_url": "",
         "base_price": 35000,
         "fallback_color": "#9ca3af",
