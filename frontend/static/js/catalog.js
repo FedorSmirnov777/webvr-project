@@ -160,10 +160,10 @@ function fitModelToParkingSlot(model, localConfig = {}) {
 }
 
 const MODEL_PATHS = {
-  toyota:   "/assets/models/toyota_camry_new.glb/source/FINAL_MODEL_23/2023_toyota_avalon_hybrid_limited.glb",
-  bmw_m3:   "/assets/models/bmw_m3_new.glb/source/FINAL_MODEL_M3/2015_bmw_m3_f80.glb",
-  mercedes: "/assets/models/mercedes_190e_evo_1982.glb",
-  porsche:  "/assets/models/1989_porsche_911_964_carrera_4_safe.glb",
+  toyota:   "/assets/models/2023_toyota_avalon_hybrid_limited.glb",
+  bmw_m3:   "/assets/models/2015_bmw_m3_f80.glb",
+  mercedes: "/assets/models/mercedese190evo.glb",
+  porsche:  "/assets/models/1989_porsche_911_964_carrera_4.glb",
 };
 
 function resolveModelPath(car) {
