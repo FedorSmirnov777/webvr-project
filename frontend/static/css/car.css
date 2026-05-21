@@ -393,3 +393,70 @@ body {
   .car-info h1 { font-size: 1.8rem; }
   .specs-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Star rating ── */
+.rating-section {
+  margin-top: 48px;
+  padding: 36px 0 48px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.rating-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rating-label {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stars-row {
+  display: flex;
+  gap: 4px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 3rem;
+  color: #ddd;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.1s, transform 0.1s;
+}
+
+.star-btn.hovered,
+.star-btn.filled {
+  color: #f5c518;
+}
+
+.star-btn.filled {
+  transform: scale(1.08);
+}
+
+.stars-row.voted .star-btn {
+  cursor: default;
+  pointer-events: none;
+}
+
+.rating-avg {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rating-thanks {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1d7f3f;
+}

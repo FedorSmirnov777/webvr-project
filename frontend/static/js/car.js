@@ -89,18 +89,14 @@ function switchImage(index) {
 /* ── Render ── */
 function renderCar(car, brandName) {
   /* Breadcrumb & title */
-  const isCamry = (car.model_name || "").toLowerCase().includes("camry") ||
-                  (car.model_name || "").toLowerCase().includes("avalon");
-  const displayModelName = isCamry ? "Avalon 2023" : car.model_name;
-  const fullName = `${brandName} ${displayModelName}`.trim();
-  document.getElementById("bc-name").textContent = fullName;
+  const modelWithYear = `${car.model_name} ${car.year || ""}`.trim();
+  const fullName = `${brandName} ${modelWithYear}`.trim();
+  document.getElementById("bc-name").textContent = `${brandName} ${car.model_name}`.trim();
   document.title = `${fullName} | VR Garage`;
 
   /* Header */
   document.getElementById("car-brand-label").textContent = brandName.toUpperCase();
-  document.getElementById("car-name").textContent = isCamry
-    ? displayModelName
-    : `${displayModelName} ${car.year || ""}`.trim();
+  document.getElementById("car-name").textContent = modelWithYear;
 
   /* Price */
   const priceEl = document.getElementById("car-price");
@@ -117,20 +113,13 @@ function renderCar(car, brandName) {
   if (car.body_type) parts.push(car.body_type);
   document.getElementById("car-badge").textContent = parts.join(" · ");
 
-  /* Gallery images — hero image first, then extra_images from API */
-  const CAMRY_HERO  = "/assets/uploads/images/tayota_avalon/toyota_avalon_hero.jpg";
-  const CAMRY_PHOTO2 = "/assets/uploads/images/tayota_avalon/tayota_avalon_2.jpg";
-
+  /* Gallery — hero from config, then extra_images */
   let images = [];
-  if (isCamry) {
-    images = [CAMRY_HERO, CAMRY_PHOTO2];
-  } else {
-    const heroUrl = car.config?.hero_image_url || car.hero_image_url || "";
-    if (heroUrl) images.push(heroUrl);
-    (car.extra_images || []).forEach((url) => {
-      if (url && url !== heroUrl) images.push(url);
-    });
-  }
+  const heroUrl = car.config?.hero_image_url || car.hero_image_url || "";
+  if (heroUrl) images.push(heroUrl);
+  (car.extra_images || []).forEach((url) => {
+    if (url && url !== heroUrl) images.push(url);
+  });
   buildGallery(images);
 
   /* Specs grid */
@@ -215,12 +204,93 @@ async function init() {
     const brandName = brand ? brand.name : "";
 
     renderCar(car, brandName);
+    initRating(car.id);
   } catch (err) {
     const msg = err.message.includes("404")
       ? "Автомобиль не найден или снят с публикации."
       : `Не удалось загрузить данные: ${err.message}`;
     showError(msg);
   }
+}
+
+/* ── Star rating ── */
+function pluralizeRatings(n) {
+  if (n % 10 === 1 && n % 100 !== 11) return "оценка";
+  if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return "оценки";
+  return "оценок";
+}
+
+function fillStars(count) {
+  document.querySelectorAll(".star-btn").forEach((s, i) => {
+    s.classList.toggle("filled", i < count);
+  });
+}
+
+async function initRating(id) {
+  const starsRow  = document.getElementById("stars-row");
+  const avgEl     = document.getElementById("rating-avg");
+  const thanksEl  = document.getElementById("rating-thanks");
+  if (!starsRow) return;
+
+  const storageKey  = `vr_rating_${id}`;
+  const alreadyVoted = localStorage.getItem(storageKey);
+
+  // Load current average
+  try {
+    const res = await fetch(`/api/v1/commerce/ratings/${id}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.count > 0) {
+        avgEl.textContent = `★ ${data.average} (${data.count} ${pluralizeRatings(data.count)})`;
+      } else {
+        avgEl.textContent = "Оценок пока нет";
+      }
+    }
+  } catch { /* silent */ }
+
+  if (alreadyVoted) {
+    fillStars(parseInt(alreadyVoted));
+    starsRow.classList.add("voted");
+    thanksEl.hidden = false;
+    return;
+  }
+
+  // Hover effect
+  const stars = starsRow.querySelectorAll(".star-btn");
+  stars.forEach((star, idx) => {
+    star.addEventListener("mouseenter", () => {
+      stars.forEach((s, j) => s.classList.toggle("hovered", j <= idx));
+    });
+    star.addEventListener("click", () => submitRating(id, idx + 1));
+  });
+
+  starsRow.addEventListener("mouseleave", () => {
+    stars.forEach(s => s.classList.remove("hovered"));
+  });
+}
+
+async function submitRating(id, score) {
+  const starsRow = document.getElementById("stars-row");
+  const avgEl    = document.getElementById("rating-avg");
+  const thanksEl = document.getElementById("rating-thanks");
+
+  starsRow.classList.add("voted");
+  fillStars(score);
+  localStorage.setItem(`vr_rating_${id}`, score);
+
+  try {
+    const res = await fetch(`/api/v1/commerce/ratings/${id}`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ score }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      avgEl.textContent = `★ ${data.average} (${data.count} ${pluralizeRatings(data.count)})`;
+    }
+  } catch { /* silent — localStorage already saved */ }
+
+  thanksEl.hidden = false;
 }
 
 init();

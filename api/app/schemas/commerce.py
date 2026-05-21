@@ -16,3 +16,12 @@ class EventCreate(BaseModel):
     car_id: int | None = None
     session_id: str | None = None
     payload: dict = Field(default_factory=dict)
+
+
+class RatingCreate(BaseModel):
+    score: int = Field(ge=1, le=5)
+
+
+class RatingOut(BaseModel):
+    average: float
+    count: int

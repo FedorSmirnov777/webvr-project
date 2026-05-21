@@ -447,7 +447,6 @@ function setupVrControl() {
   enterVrBtn.addEventListener("click", async () => {
     if (HEADSET_VR_MODE) {
       setStatus("Включен режим VR-шлема.");
-      // Brighten sky for mobile WebXR
       sceneEl.setAttribute("fog", "type: linear; near: 999; far: 1000; color: #6aa9ff");
       const sky = sceneEl.querySelector("a-sky");
       if (sky) sky.setAttribute("color", "#60a5fa");

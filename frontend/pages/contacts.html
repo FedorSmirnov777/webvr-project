@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/contacts.css?v=20260505a" />
+    <link rel="stylesheet" href="/static/css/contacts.css?v=20260522a" />
   </head>
   <body>
     <div class="info-bar">
@@ -73,31 +73,84 @@
           </ul>
         </div>
 
-        <form class="cs-form" id="cs-form-1388" name="Contact Form" method="post">
-          <h3 class="cs-h3">Записаться на тест-драйв</h3>
-          <label class="cs-label">
-            Имя
-            <input class="cs-input" required type="text" id="name-1388" name="name" placeholder="Имя" />
-          </label>
-          <label class="cs-label cs-email">
-            Email
-            <input class="cs-input" required type="email" id="email-1388" name="email" placeholder="Email" />
-          </label>
-          <label class="cs-label cs-phone">
-            Телефон
-            <input class="cs-input" required type="tel" id="phone-1388" name="phone" placeholder="Телефон" />
-          </label>
-          <label class="cs-label">
-            Сообщение
-            <textarea class="cs-input cs-textarea" required name="message" id="message-1388" placeholder="Напишите сообщение..."></textarea>
-          </label>
-          <button class="cs-button-solid cs-submit" type="submit">Оставить заявку</button>
+        <!-- Multi-step booking wizard -->
+        <div class="cs-form wizard-form" id="cs-form-1388">
+
+          <!-- Progress indicator -->
+          <div class="wiz-progress" id="wiz-progress">
+            <div class="wiz-step active" data-step="1">
+              <div class="wiz-bubble">1</div>
+              <span>Автомобиль</span>
+            </div>
+            <div class="wiz-line"></div>
+            <div class="wiz-step" data-step="2">
+              <div class="wiz-bubble">2</div>
+              <span>Дата и время</span>
+            </div>
+            <div class="wiz-line"></div>
+            <div class="wiz-step" data-step="3">
+              <div class="wiz-bubble">3</div>
+              <span>Контакты</span>
+            </div>
+          </div>
+
+          <!-- Step 1: Choose car -->
+          <div class="wiz-panel" id="wiz-panel-1">
+            <h3 class="cs-h3">Выберите автомобиль</h3>
+            <div class="car-select-wrap">
+              <select class="car-select" id="car-select">
+                <option value="">— Загрузка автомобилей… —</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Date & time -->
+          <div class="wiz-panel" id="wiz-panel-2" hidden>
+            <h3 class="cs-h3">Дата и время</h3>
+            <label class="cs-label full">
+              Желаемая дата
+              <input class="cs-input" type="date" id="pick-date" />
+            </label>
+            <div class="slots-label">Выберите время</div>
+            <div class="slots-grid" id="slots-grid"></div>
+          </div>
+
+          <!-- Step 3: Contact details -->
+          <div class="wiz-panel" id="wiz-panel-3" hidden>
+            <h3 class="cs-h3">Ваши данные</h3>
+            <label class="cs-label full">
+              Имя
+              <input class="cs-input" type="text" id="w-name" placeholder="Имя" />
+            </label>
+            <label class="cs-label full">
+              Телефон
+              <input class="cs-input" type="tel" id="w-phone" placeholder="+7 900 000-00-00" autocomplete="tel" />
+            </label>
+            <label class="cs-label full">
+              Email
+              <input class="cs-input" type="email" id="w-email" placeholder="email@mail.ru" />
+            </label>
+          </div>
+
+          <!-- Confirmation screen -->
+          <div class="wiz-panel wiz-done" id="wiz-panel-done" hidden>
+            <div class="done-icon">✓</div>
+            <h3 class="done-title">Заявка принята</h3>
+            <p class="done-sub" id="done-summary"></p>
+            <p class="done-ref" id="done-ref"></p>
+          </div>
+
+          <!-- Navigation -->
+          <div class="wiz-nav" id="wiz-nav">
+            <button type="button" class="wiz-btn-back" id="wiz-back" hidden>← Назад</button>
+            <button type="button" class="wiz-btn-next" id="wiz-next">Далее</button>
+          </div>
+
           <p class="cs-form-status" id="lead-status" role="status" aria-live="polite"></p>
-          <p id="contact-status" class="contact-status" aria-live="polite"></p>
-        </form>
+        </div>
       </div>
     </section>
-    <script src="/static/js/contacts.js?v=20260505a"></script>
+    <script src="/static/js/contacts.js?v=20260522a"></script>
     <script src="/static/js/auth-state.js?v=20260422a"></script>
   </body>
 </html>

@@ -43,62 +43,63 @@ BRANDS = [
 
 # ── Car definitions ──────────────────────────────────────────────────────────
 CARS = [
-    # ── Toyota Camry 2005 ──────────────────────────────────────────────────
+    # ── Toyota Avalon 2023 ────────────────────────────────────────────────
     {
         "slug": "toyota",
-        "model_name": "Camry",
-        "year": 2005,
+        "model_name": "Avalon",
+        "year": 2023,
         "body_type": "Sedan",
         "description": (
-            "Toyota Camry пятого поколения (XV30) — надёжный японский седан бизнес-класса. "
-            "Отличается плавным ходом, просторным салоном и проверенным двигателем 2.4 VVT-i. "
-            "Идеальный выбор для тех, кто ценит практичность и долгосрочную надёжность."
+            "Toyota Avalon 2023 — флагманский полноразмерный седан Toyota, олицетворяющий "
+            "роскошь, комфорт и технологичность. Просторный салон бизнес-класса, адаптивный "
+            "круиз-контроль, 9-дюймовый мультимедийный экран и мощный V6 делают его идеальным "
+            "выбором для тех, кто ценит премиальный уровень езды без компромиссов."
         ),
-        "base_price": 11500,
+        "base_price": 36225,
         "specs": {
-            "engine":       "2.4 VVT-i (152 л.с.)",
-            "transmission": "Автомат (4-ст.)",
+            "engine":       "3.5 V6 (301 л.с.)",
+            "transmission": "Автомат 8-ст.",
             "drivetrain":   "FWD",
             "fuel":         "Бензин",
-            "power":        "152 л.с.",
-            "acceleration": "9.8 с",
-            "mileage":      145000,
+            "power":        "301 л.с.",
+            "acceleration": "6.3 с",
+            "mileage":      0,
             "seats":        "5",
-            "color":        "Серебристый",
+            "color":        "Midnight Black",
         },
         "model_url":    "/assets/models/toyota_camry/scene.gltf",
         "model_type":   "gltf",
-        "hero_image_url": "/assets/uploads/images/toyota_camry_hero.jpeg",
-        "extra_image_url": "/assets/uploads/images/toyota_camry_2005_1.webp",
+        "hero_image_url": "/assets/uploads/images/tayota_avalon/toyota_avalon_hero.jpg",
+        "extra_image_url": "/assets/uploads/images/tayota_avalon/tayota_avalon_2.jpg",
         "trims": [
             {
-                "trim_name":  "Classic",
-                "trim_price": 11500,
+                "trim_name":  "XLE",
+                "trim_price": 36225,
                 "features": {
-                    "engine":       "2.0 VVT-i (132 л.с.)",
-                    "transmission": "Механика 5-ст.",
+                    "engine":       "3.5 V6 (301 л.с.)",
+                    "transmission": "Автомат 8-ст.",
                     "seats":        "5",
-                    "color":        "Белый жемчуг",
+                    "color":        "Midnight Black",
                 },
             },
             {
-                "trim_name":  "Comfort",
-                "trim_price": 13200,
+                "trim_name":  "XSE",
+                "trim_price": 38500,
                 "features": {
-                    "engine":       "2.4 VVT-i (152 л.с.)",
-                    "transmission": "Автомат 4-ст.",
+                    "engine":       "3.5 V6 (301 л.с.)",
+                    "transmission": "Автомат 8-ст.",
                     "seats":        "5",
-                    "color":        "Серебристый",
+                    "color":        "Supersonic Red",
                 },
             },
             {
-                "trim_name":  "Prestige",
-                "trim_price": 15800,
+                "trim_name":  "Limited",
+                "trim_price": 43500,
                 "features": {
-                    "engine":       "3.0 VVT-i V6 (188 л.с.)",
-                    "transmission": "Автомат 5-ст.",
+                    "engine":       "3.5 V6 (301 л.с.)",
+                    "transmission": "Автомат 8-ст.",
                     "seats":        "5",
-                    "color":        "Тёмно-синий перламутр",
+                    "color":        "Celestial Silver",
                 },
             },
         ],

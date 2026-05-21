@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/car.css" />
+    <link rel="stylesheet" href="/static/css/car.css?v=20260522a" />
   </head>
   <body>
     <div class="info-bar">
@@ -101,9 +101,25 @@
           <div class="trims-grid" id="trims-grid"></div>
         </section>
 
+        <!-- Star rating -->
+        <section class="rating-section" id="rating-section">
+          <div class="rating-inner">
+            <span class="rating-label">Оцените автомобиль</span>
+            <div class="stars-row" id="stars-row" role="group" aria-label="Оценка автомобиля">
+              <button class="star-btn" type="button" data-score="1" aria-label="1 звезда">★</button>
+              <button class="star-btn" type="button" data-score="2" aria-label="2 звезды">★</button>
+              <button class="star-btn" type="button" data-score="3" aria-label="3 звезды">★</button>
+              <button class="star-btn" type="button" data-score="4" aria-label="4 звезды">★</button>
+              <button class="star-btn" type="button" data-score="5" aria-label="5 звёзд">★</button>
+            </div>
+            <p class="rating-avg" id="rating-avg"></p>
+            <p class="rating-thanks" id="rating-thanks" hidden>Спасибо за оценку</p>
+          </div>
+        </section>
+
       </div>
     </main>
 
-    <script src="/static/js/car.js?v=20260520n"></script>
+    <script src="/static/js/car.js?v=20260522b"></script>
   </body>
 </html>

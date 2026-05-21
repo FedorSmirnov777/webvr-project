@@ -320,3 +320,259 @@ body {
   opacity: 0.65;
   cursor: wait;
 }
+
+/* ══════════════════════════════════════
+   WIZARD FORM OVERRIDES
+══════════════════════════════════════ */
+
+#contact-1388 .wizard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Progress indicator ── */
+.wiz-progress {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.wiz-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.wiz-bubble {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  color: #999;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s, color 0.25s;
+}
+
+.wiz-step > span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #bbb;
+  white-space: nowrap;
+  transition: color 0.25s;
+}
+
+.wiz-step.active .wiz-bubble { background: #111; color: #fff; }
+.wiz-step.active > span      { color: #111; }
+
+.wiz-step.done .wiz-bubble   { background: #1d7f3f; color: #fff; }
+.wiz-step.done > span        { color: #1d7f3f; }
+
+.wiz-line {
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 17px 6px 0; /* align with bubble centre */
+}
+
+/* ── Panels ── */
+.wiz-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 220px;
+}
+
+/* ── Car select dropdown ── */
+.car-select-wrap {
+  position: relative;
+}
+
+.car-select {
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+  background: #fafafa;
+  font-family: "Manrope", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1.4;
+}
+
+.car-select:focus {
+  outline: none;
+  border-color: #111;
+  background: #fff;
+}
+
+.car-select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 6px;
+  background: #555;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  pointer-events: none;
+}
+
+/* ── Date & Slots ── */
+.slots-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #3f3f3f;
+  margin-top: 2px;
+}
+
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-btn {
+  padding: 9px 15px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 9px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.slot-btn:hover       { border-color: #333; background: #fff; }
+.slot-btn.selected    { background: #111; color: #fff; border-color: #111; }
+
+/* ── Full-width label ── */
+.cs-label.full {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3f3f3f;
+}
+
+/* ── Navigation ── */
+.wiz-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+.wiz-btn-back {
+  background: none;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #555;
+  transition: background 0.12s;
+}
+
+.wiz-btn-back:hover { background: #f0f0f0; }
+
+.wiz-btn-next {
+  background: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 30px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  margin-left: auto;
+  transition: background 0.15s;
+}
+
+.wiz-btn-next:hover     { background: #2a2a2a; }
+.wiz-btn-next:disabled  { opacity: 0.6; cursor: wait; }
+
+/* ── Done / Confirmation ── */
+.wiz-done {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 0 10px;
+  min-height: 260px;
+}
+
+.done-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #1d7f3f;
+  color: #fff;
+  font-size: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.done-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.55rem;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.done-sub {
+  color: #555;
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.done-ref {
+  font-weight: 700;
+  color: #1d7f3f;
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+}
+
+.done-back {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 22px;
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 10px;
+  text-decoration: none;
+  color: #111;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.12s;
+}
+
+.done-back:hover { background: #f0f0f0; }
+
+@media (max-width: 540px) {
+  .wiz-step > span { display: none; }
+  .wiz-line { margin-top: 17px; }
+}

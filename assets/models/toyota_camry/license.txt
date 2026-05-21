@@ -1,8 +1,0 @@
-Model Information:
-* title:	Toyota Camry
-* source:	https://sketchfab.com/3d-models/toyota-camry-102ee362ef31442e9bdcf1d64a86727c
-* author:	Korolv (https://sketchfab.com/Korolv)
-
-Model License:
-* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
-* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
